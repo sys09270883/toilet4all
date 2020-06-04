@@ -76,36 +76,37 @@ class ToiletDBHelper(var context: Context) : SQLiteOpenHelper(context, DB_NAME, 
     }
 
     fun insertAllToilet(toilets: MutableList<Toilet>) {
-        this.writableDatabase.beginTransaction()
+        val db = this.writableDatabase
+        db.beginTransaction()
         toilets.forEach { toilet ->
             if (toilet.latitude > 1.0 && toilet.hardness > 1.0) {
                 val toiletValues = ContentValues()
-                toiletValues.put(ToiletDBHelper.TOILET_TYPE, toilet.toiletType)
-                toiletValues.put(ToiletDBHelper.TOILET_NAME, toilet.tolietNm)
-                toiletValues.put(ToiletDBHelper.RDNMADR, toilet.rdnmadr)
-                toiletValues.put(ToiletDBHelper.LNMDAR, toilet.lnmdar)
-                toiletValues.put(ToiletDBHelper.UNISEX_TOILET_YN, toilet.unisexToiletYn)
-                toiletValues.put(ToiletDBHelper.MEN_TOILET_BOWL_NUMBER, toilet.menToiletBowlNumber)
-                toiletValues.put(ToiletDBHelper.MEN_URINE_NUMBER, toilet.menHandicapUrinalNumber)
-                toiletValues.put(ToiletDBHelper.MEN_HANDICAP_TOILET_BOWL_NUMBER, toilet.menHandicapToiletBowlNumber)
-                toiletValues.put(ToiletDBHelper.MEN_HANDICAP_URINAL_NUMBER, toilet.menHandicapUrinalNumber)
-                toiletValues.put(ToiletDBHelper.MEN_CHILDREN_TOILET_BOTTLE_NUMBER, toilet.menChildrenToiletBottleNumber)
-                toiletValues.put(ToiletDBHelper.MEN_CHILDREN_URINAL_NUMBER, toilet.menChildrenUrinalNumber)
-                toiletValues.put(ToiletDBHelper.LADIES_TOILET_BOWL_NUMBER, toilet.ladiesToiletBowlNumber)
-                toiletValues.put(ToiletDBHelper.LADIES_HANDICAP_TOILET_BOWL_NUMBER, toilet.ladiesHandicapToiletBowlNumber)
-                toiletValues.put(ToiletDBHelper.LADIES_CHILDREN_TOILET_BOWL_NUMBER, toilet.ladiesChildrenToiletBowlNumber)
-                toiletValues.put(ToiletDBHelper.INSTITUTION_NAME, toilet.institutionNm)
-                toiletValues.put(ToiletDBHelper.PHONE_NUMBER, toilet.phoneNumber)
-                toiletValues.put(ToiletDBHelper.OPEN_TIME, toilet.openTime)
-                toiletValues.put(ToiletDBHelper.INSTALLATION_YEAR, toilet.installationYear)
-                toiletValues.put(ToiletDBHelper.LATITUDE, toilet.latitude)
-                toiletValues.put(ToiletDBHelper.HARDNESS, toilet.hardness)
-                toiletValues.put(ToiletDBHelper.REFERENCE_DATA, toilet.referenceData)
-                this.writableDatabase.insert(ToiletDBHelper.TABLE_NAME, null, toiletValues)
+                toiletValues.put(TOILET_TYPE, toilet.toiletType)
+                toiletValues.put(TOILET_NAME, toilet.tolietNm)
+                toiletValues.put(RDNMADR, toilet.rdnmadr)
+                toiletValues.put(LNMDAR, toilet.lnmdar)
+                toiletValues.put(UNISEX_TOILET_YN, toilet.unisexToiletYn)
+                toiletValues.put(MEN_TOILET_BOWL_NUMBER, toilet.menToiletBowlNumber)
+                toiletValues.put(MEN_URINE_NUMBER, toilet.menHandicapUrinalNumber)
+                toiletValues.put(MEN_HANDICAP_TOILET_BOWL_NUMBER, toilet.menHandicapToiletBowlNumber)
+                toiletValues.put(MEN_HANDICAP_URINAL_NUMBER, toilet.menHandicapUrinalNumber)
+                toiletValues.put(MEN_CHILDREN_TOILET_BOTTLE_NUMBER, toilet.menChildrenToiletBottleNumber)
+                toiletValues.put(MEN_CHILDREN_URINAL_NUMBER, toilet.menChildrenUrinalNumber)
+                toiletValues.put(LADIES_TOILET_BOWL_NUMBER, toilet.ladiesToiletBowlNumber)
+                toiletValues.put(LADIES_HANDICAP_TOILET_BOWL_NUMBER, toilet.ladiesHandicapToiletBowlNumber)
+                toiletValues.put(LADIES_CHILDREN_TOILET_BOWL_NUMBER, toilet.ladiesChildrenToiletBowlNumber)
+                toiletValues.put(INSTITUTION_NAME, toilet.institutionNm)
+                toiletValues.put(PHONE_NUMBER, toilet.phoneNumber)
+                toiletValues.put(OPEN_TIME, toilet.openTime)
+                toiletValues.put(INSTALLATION_YEAR, toilet.installationYear)
+                toiletValues.put(LATITUDE, toilet.latitude)
+                toiletValues.put(HARDNESS, toilet.hardness)
+                toiletValues.put(REFERENCE_DATA, toilet.referenceData)
+                db.insert(TABLE_NAME, null, toiletValues)
             }
         }
-        this.writableDatabase.setTransactionSuccessful()
-        this.writableDatabase.endTransaction()
+        db.setTransactionSuccessful()
+        db.endTransaction()
     }
 
     fun getAllToilet(naverMap: NaverMap, infoWindow: InfoWindow): ArrayList<Marker> {

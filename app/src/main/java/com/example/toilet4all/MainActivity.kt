@@ -1,5 +1,7 @@
 package com.example.toilet4all
 
+import android.Manifest
+import android.content.pm.PackageManager
 import android.graphics.Color
 import android.os.Bundle
 import android.os.Handler
@@ -9,12 +11,11 @@ import android.view.Gravity
 import android.view.View
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.app.ActivityCompat
 import androidx.drawerlayout.widget.DrawerLayout
+import com.google.android.gms.location.*
 import com.naver.maps.geometry.LatLng
-import com.naver.maps.map.CameraPosition
-import com.naver.maps.map.MapFragment
-import com.naver.maps.map.NaverMap
-import com.naver.maps.map.OnMapReadyCallback
+import com.naver.maps.map.*
 import com.naver.maps.map.overlay.InfoWindow
 import com.naver.maps.map.overlay.Marker
 import com.naver.maps.map.overlay.Overlay
@@ -31,12 +32,80 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
     var backKeyPressedTime: Long = 0
     val executor = Executors.newSingleThreadExecutor()
     val handler = Handler(Looper.getMainLooper())
+    lateinit var naverMap: NaverMap
+    var loc = LatLng(35.5640984, 126.9712268)
+    lateinit var fusedLocationClient: FusedLocationProviderClient
+    lateinit var locationCallback: LocationCallback
+    lateinit var locationRequest: LocationRequest
+
+    companion object {
+        const val LOCATION_PERMISSION_REQUEST_CODE = 1000
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
         initMap()
-        init()
+    }
+
+    private fun initLocation() {
+        if (ActivityCompat.checkSelfPermission(this,
+            Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED &&
+            ActivityCompat.checkSelfPermission(this,
+                Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
+            fusedLocationClient = LocationServices.getFusedLocationProviderClient(this)
+            fusedLocationClient?.lastLocation?.addOnSuccessListener {
+                loc = LatLng(it.latitude, it.longitude)
+            }
+            startLocationUpdates()
+        }
+        else {
+            ActivityCompat.requestPermissions(this,
+            arrayOf(Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION),
+            LOCATION_PERMISSION_REQUEST_CODE)
+        }
+    }
+
+    private fun startLocationUpdates() {
+        locationRequest = LocationRequest.create().apply {
+            interval = 10000
+            fastestInterval = 5000
+            priority = LocationRequest.PRIORITY_HIGH_ACCURACY
+        }
+
+        locationCallback = object: LocationCallback() {
+            override fun onLocationResult(p0: LocationResult?) {
+                p0 ?: return
+                for (location in p0.locations) {
+                    loc = LatLng(location.latitude, location.longitude)
+//                    naverMap.moveCamera(CameraUpdate.scrollTo(loc))
+                }
+            }
+        }
+
+        if (ActivityCompat.checkSelfPermission(this,
+                Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED &&
+            ActivityCompat.checkSelfPermission(this,
+                Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
+            fusedLocationClient = LocationServices.getFusedLocationProviderClient(this)
+            fusedLocationClient?.lastLocation?.addOnSuccessListener {
+                loc = LatLng(it.latitude, it.longitude)
+            }
+            fusedLocationClient.requestLocationUpdates(
+                locationRequest,
+                locationCallback,
+                Looper.getMainLooper()
+            )
+        }
+    }
+
+    fun stopLocationUpdates() {
+        fusedLocationClient.removeLocationUpdates(locationCallback)
+    }
+
+    override fun onPause() {
+        super.onPause()
+        stopLocationUpdates()
     }
 
     private fun initMap() {
@@ -218,6 +287,10 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
     }
 
     private fun init() {
+        // 초기 위치는 내 현재 위치, 줌은 14
+        naverMap.moveCamera(CameraUpdate.zoomTo(14.0))
+        naverMap.moveCamera(CameraUpdate.scrollTo(loc))
+
         drawerLayout.addDrawerListener(object: DrawerLayout.DrawerListener {
             override fun onDrawerStateChanged(newState: Int) {}
             override fun onDrawerSlide(drawerView: View, slideOffset: Float) {}
@@ -228,7 +301,10 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
         settingBtn.setOnClickListener { drawerLayout.openDrawer(Gravity.LEFT) }
 
         // boardActivity에 intent해야 함.
-        boardBtn.setOnClickListener {  }
+        boardBtn.setOnClickListener {
+
+        }
+
     }
 
     override fun onBackPressed() {
@@ -242,10 +318,11 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
     }
 
     override fun onMapReady(p0: NaverMap) {
-        p0.cameraPosition = CameraPosition(LatLng(35.5640984, 126.9712268), 14.0)
-        p0.mapType = NaverMap.MapType.Basic
-        p0.maxZoom = 16.0
-        p0.minZoom = 6.0
+        naverMap = p0
+        naverMap.cameraPosition = CameraPosition(LatLng(35.5640984, 126.9712268), 14.0)
+        naverMap.mapType = NaverMap.MapType.Basic
+        naverMap.maxZoom = 16.0
+        naverMap.minZoom = 12.0
 
         val infoWindow = InfoWindow()
         infoWindow.adapter = object: InfoWindow.DefaultTextAdapter(this) {
@@ -254,13 +331,35 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
             }
         }
 
-        p0.setOnMapClickListener { _, _ ->
+        naverMap.setOnMapClickListener { _, _ ->
             infoWindow.close()
         }
 
-        initDB(p0, infoWindow)
+        initLocation()
+        initDB(naverMap, infoWindow)
+        init()
     }
 
-
-
+    override fun onRequestPermissionsResult(
+        requestCode: Int,
+        permissions: Array<out String>,
+        grantResults: IntArray
+    ) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+        if (requestCode == LOCATION_PERMISSION_REQUEST_CODE) {
+            if (ActivityCompat.checkSelfPermission(this,
+                    Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED &&
+                ActivityCompat.checkSelfPermission(this,
+                    Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
+                fusedLocationClient = LocationServices.getFusedLocationProviderClient(this)
+                fusedLocationClient.lastLocation.addOnSuccessListener {
+                    loc = LatLng(it.latitude, it.longitude)
+                }
+                startLocationUpdates()
+            }
+            else {
+                Toast.makeText(this, "위치 정보를 제공해야 합니다.", Toast.LENGTH_SHORT).show()
+            }
+        }
+    }
 }
