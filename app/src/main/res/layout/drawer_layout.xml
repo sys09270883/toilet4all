@@ -5,7 +5,9 @@
     android:layout_height="match_parent"
     android:layout_gravity="start"
     android:id="@+id/drawerView"
-    android:background="#5559b4">
+    android:background="@color/appDarkColor"
+    android:clickable="true"
+    >
 
     <RelativeLayout
         android:layout_width="match_parent"
@@ -16,7 +18,7 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="반갑습니다"
+            android:text="201511271 신윤섭"
             android:textSize="14dp"
             android:textColor="#ffffff"
             android:layout_marginTop="60dp"
@@ -27,30 +29,21 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:id="@+id/genter_icon"
-            android:layout_marginTop="80dp"
-            android:layout_marginLeft="50dp">
-<!--            android:src="@drawable/profile_icon"-->
+            android:layout_marginTop="20dp"
+            android:layout_marginLeft="20dp"
+            android:src="@drawable/ic_settings_big"
+            >
         </ImageView>
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="이아람 님"
+            android:text="설정"
             android:textSize="26dp"
             android:textColor="#ffffff"
-            android:layout_marginTop="80dp"
-            android:layout_marginLeft="94dp"
+            android:layout_marginTop="25dp"
+            android:layout_marginLeft="80dp"
             >
-        </TextView>
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="쭉쭉이와 함께 활기찬 하루 시작하세요"
-            android:textSize="14dp"
-            android:textColor="#ffffff"
-            android:layout_marginTop="130dp"
-            android:layout_centerHorizontal="true">
         </TextView>
 
         <LinearLayout
@@ -71,12 +64,12 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="운동이력"
+            android:text="거리 설정"
             android:textColor="#ffffff"
             android:id="@+id/nav_ex"
             android:layout_marginTop="298dp"
             android:layout_marginLeft="44dp"
-            android:onClick="OnClick">
+            >
         </TextView>
 
         <LinearLayout
@@ -97,12 +90,12 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="회원정보수정"
+            android:text="남여공용 여부"
             android:textColor="#ffffff"
             android:id="@+id/nav_info"
             android:layout_marginTop="368dp"
             android:layout_marginLeft="44dp"
-            android:onClick="OnClick">
+            >
         </TextView>
 
         <LinearLayout
@@ -123,12 +116,12 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="도움말"
+            android:text="편의시설"
             android:textColor="#ffffff"
             android:id="@+id/nav_help"
             android:layout_marginTop="438dp"
             android:layout_marginLeft="44dp"
-            android:onClick="OnClick">
+            >
         </TextView>
 
         <LinearLayout
@@ -138,17 +131,6 @@
             android:layout_marginTop="480dp">
         </LinearLayout>
 
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="로그아웃"
-            android:textSize="15dp"
-            android:textColor="#ffffff"
-            android:id="@+id/nav_logout"
-            android:layout_marginTop="550dp"
-            android:layout_centerHorizontal="true"
-            android:onClick="OnClick">
-        </TextView>
     </RelativeLayout>
 
 </LinearLayout>

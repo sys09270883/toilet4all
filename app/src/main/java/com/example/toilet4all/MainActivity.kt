@@ -15,10 +15,14 @@ import androidx.core.app.ActivityCompat
 import androidx.drawerlayout.widget.DrawerLayout
 import com.google.android.gms.location.*
 import com.naver.maps.geometry.LatLng
-import com.naver.maps.map.*
+import com.naver.maps.map.CameraPosition
+import com.naver.maps.map.MapFragment
+import com.naver.maps.map.NaverMap
+import com.naver.maps.map.OnMapReadyCallback
 import com.naver.maps.map.overlay.InfoWindow
 import com.naver.maps.map.overlay.Marker
 import com.naver.maps.map.overlay.Overlay
+import com.naver.maps.map.overlay.OverlayImage
 import com.naver.maps.map.util.MarkerIcons
 import kotlinx.android.synthetic.main.activity_main.*
 import org.json.JSONException
@@ -78,7 +82,7 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
                 p0 ?: return
                 for (location in p0.locations) {
                     loc = LatLng(location.latitude, location.longitude)
-//                    naverMap.moveCamera(CameraUpdate.scrollTo(loc))
+                    naverMap.locationOverlay.position = loc
                 }
             }
         }
@@ -96,10 +100,11 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
                 locationCallback,
                 Looper.getMainLooper()
             )
+
         }
     }
 
-    fun stopLocationUpdates() {
+    private fun stopLocationUpdates() {
         fusedLocationClient.removeLocationUpdates(locationCallback)
     }
 
@@ -236,8 +241,8 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
     private fun initDB(naverMap: NaverMap, infoWindow: InfoWindow) {
         dbHelper = ToiletDBHelper(this)
 
-        // db에 전국공중화장실표준데이터를 aseets에 저장한다.
-        // json파일을 파싱하여 toilet 객체를 만들고 db에 넣어줌.
+        // db에 전국공중화장실표준데이터를 asset에 저장한다.
+        // json 파일을 파싱하여 toilet 객체를 만들고 db에 넣어줌.
         if (dbHelper.getCount() > 0) {
             // db에 데이터가 이미 있으면 맵에 뿌려줘야함.
             val markers = dbHelper.getAllToilet(naverMap, infoWindow)
@@ -260,6 +265,7 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
             return
         }
 
+        Toast.makeText(this, "데이터를 불러오는 중입니다.", Toast.LENGTH_SHORT).show()
         // 백그라운드에서 marker를 생성해야 함.
         executor.execute {
             val markers = mutableListOf<Marker>()
@@ -287,10 +293,6 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
     }
 
     private fun init() {
-        // 초기 위치는 내 현재 위치, 줌은 14
-        naverMap.moveCamera(CameraUpdate.zoomTo(14.0))
-        naverMap.moveCamera(CameraUpdate.scrollTo(loc))
-
         drawerLayout.addDrawerListener(object: DrawerLayout.DrawerListener {
             override fun onDrawerStateChanged(newState: Int) {}
             override fun onDrawerSlide(drawerView: View, slideOffset: Float) {}
@@ -298,12 +300,19 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
             override fun onDrawerOpened(drawerView: View) {}
         })
 
-        settingBtn.setOnClickListener { drawerLayout.openDrawer(Gravity.LEFT) }
+        settingBtn.setOnClickListener {
+            drawerLayout.openDrawer(Gravity.LEFT)
+        }
 
         // boardActivity에 intent해야 함.
         boardBtn.setOnClickListener {
 
         }
+
+        curLocBtn.setOnClickListener {
+            naverMap.cameraPosition = CameraPosition(loc, 14.0)
+        }
+
 
     }
 
@@ -319,10 +328,15 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
 
     override fun onMapReady(p0: NaverMap) {
         naverMap = p0
-        naverMap.cameraPosition = CameraPosition(LatLng(35.5640984, 126.9712268), 14.0)
+        naverMap.cameraPosition = CameraPosition(loc, 14.0)
         naverMap.mapType = NaverMap.MapType.Basic
         naverMap.maxZoom = 16.0
         naverMap.minZoom = 12.0
+
+        naverMap.locationOverlay.isVisible = true
+        naverMap.locationOverlay.icon = OverlayImage.fromResource(R.drawable.ic_baseline_location_on)
+        naverMap.locationOverlay.iconWidth = 200
+        naverMap.locationOverlay.iconHeight = 200
 
         val infoWindow = InfoWindow()
         infoWindow.adapter = object: InfoWindow.DefaultTextAdapter(this) {

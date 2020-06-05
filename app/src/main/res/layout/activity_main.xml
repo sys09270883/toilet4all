@@ -16,12 +16,32 @@
 
 
         <com.google.android.material.button.MaterialButton
+            android:id="@+id/curLocBtn"
+            style="@style/Widget.MaterialComponents.ExtendedFloatingActionButton"
+            app:cornerRadius="28dp"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:layout_marginTop="20dp"
+            android:layout_marginEnd="20dp"
+            android:layout_marginRight="20dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:icon="@drawable/ic_baseline_location_searching_24"
+            app:iconGravity="textStart"
+            android:insetLeft="0dp"
+            android:insetRight="0dp"
+            android:insetTop="0dp"
+            android:insetBottom="0dp"
+            app:iconPadding="0dp"
+             />
+
+        <com.google.android.material.button.MaterialButton
             android:id="@+id/boardBtn"
             style="@style/Widget.MaterialComponents.ExtendedFloatingActionButton"
             app:cornerRadius="28dp"
-            android:layout_width="56dp"
-            android:layout_height="56dp"
-            android:layout_marginTop="20dp"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:layout_marginTop="80dp"
             android:layout_marginEnd="20dp"
             android:layout_marginRight="20dp"
             app:layout_constraintEnd_toEndOf="parent"
@@ -33,13 +53,13 @@
             android:insetTop="0dp"
             android:insetBottom="0dp"
             app:iconPadding="0dp"
-             />
+            />
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/settingBtn"
             style="@style/Widget.MaterialComponents.ExtendedFloatingActionButton"
-            android:layout_width="56dp"
-            android:layout_height="56dp"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
             android:layout_marginStart="20dp"
             android:layout_marginLeft="20dp"
             android:layout_marginTop="20dp"
