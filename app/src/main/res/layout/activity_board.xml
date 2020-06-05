@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    tools:context=".BoardActivity"
+    >
+
+    <TextView
+        android:id="@+id/boardTitleTextView"
+        android:layout_width="match_parent"
+        android:layout_height="80dp"
+        android:text="자유게시판"
+        android:paddingTop="20dp"
+        android:paddingBottom="20dp"
+        android:paddingLeft="20dp"
+        android:textSize="24dp"
+        tools:layout_editor_absoluteX="27dp"
+        tools:layout_editor_absoluteY="25dp"
+        android:textColor="#FFFFFF"
+        android:background="@color/appDarkColor"
+        />
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/recyclerView"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        />
+
+
+</LinearLayout>

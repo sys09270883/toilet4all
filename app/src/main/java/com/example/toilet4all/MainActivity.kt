@@ -1,6 +1,7 @@
 package com.example.toilet4all
 
 import android.Manifest
+import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.Color
 import android.os.Bundle
@@ -307,7 +308,8 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
 
         // boardActivity에 intent해야 함.
         boardBtn.setOnClickListener {
-
+            val intent = Intent(this, BoardActivity::class.java)
+            startActivity(intent)
         }
 
     }
@@ -334,8 +336,13 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
         naverMap.maxZoom = 16.0
         naverMap.minZoom = 12.0
         naverMap.uiSettings.isLocationButtonEnabled = true
-
+        naverMap.uiSettings.isCompassEnabled = true
+        naverMap.uiSettings.isScaleBarEnabled = true
+        naverMap.uiSettings.isCompassEnabled = true
+        naverMap.uiSettings.isScrollGesturesEnabled = true
+        naverMap.uiSettings.isRotateGesturesEnabled = true
         naverMap.locationOverlay.isVisible = true
+        naverMap.locationOverlay.circleRadius = 400
         naverMap.locationTrackingMode = LocationTrackingMode.Follow
 
         val infoWindow = InfoWindow()
@@ -345,7 +352,7 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
             }
         }
 
-        naverMap.setOnMapClickListener { _, _ ->
+        naverMap.setOnMapClickListener { point, coord  ->
             infoWindow.close()
         }
 
@@ -367,20 +374,5 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
             return
         }
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
-//        if (requestCode == LOCATION_PERMISSION_REQUEST_CODE) {
-//            if (ActivityCompat.checkSelfPermission(this,
-//                    Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED &&
-//                ActivityCompat.checkSelfPermission(this,
-//                    Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
-//                fusedLocationClient = LocationServices.getFusedLocationProviderClient(this)
-//                fusedLocationClient.lastLocation.addOnSuccessListener {
-//                    loc = LatLng(it.latitude, it.longitude)
-//                }
-//                startLocationUpdates()
-//            }
-//            else {
-//                Toast.makeText(this, "위치 정보를 제공해야 합니다.", Toast.LENGTH_SHORT).show()
-//            }
-//        }
     }
 }
