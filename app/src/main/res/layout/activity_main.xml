@@ -55,15 +55,11 @@
             />
 
 
+
+
     </androidx.constraintlayout.widget.ConstraintLayout>
 
-
     <include layout="@layout/drawer_layout"/>
-
-
-
-
-
 
 
 </androidx.drawerlayout.widget.DrawerLayout>

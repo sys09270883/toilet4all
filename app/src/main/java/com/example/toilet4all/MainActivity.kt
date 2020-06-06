@@ -4,6 +4,7 @@ import android.Manifest
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.Color
+import android.os.AsyncTask
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
@@ -25,16 +26,17 @@ import com.naver.maps.map.util.MarkerIcons
 import kotlinx.android.synthetic.main.activity_main.*
 import org.json.JSONException
 import org.json.JSONObject
-import java.util.concurrent.Executors
+import java.lang.ref.WeakReference
 import kotlin.properties.Delegates
 
 class MainActivity : AppCompatActivity(), OnMapReadyCallback {
 
     lateinit var dbHelper: ToiletDBHelper
     var backKeyPressedTime: Long = 0
-    val executor = Executors.newSingleThreadExecutor()
     val handler = Handler(Looper.getMainLooper())
+    lateinit var pbHandler: Handler
     lateinit var naverMap: NaverMap
+    lateinit var infoWindow: InfoWindow
     lateinit var loc: LatLng
     lateinit var fusedLocationClient: FusedLocationProviderClient
     lateinit var locationCallback: LocationCallback
@@ -43,6 +45,40 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
 
     companion object {
         const val LOCATION_PERMISSION_REQUEST_CODE = 1000
+    }
+
+    private fun startTask() {
+        val task = ToiletAsyncTask(this)
+        task.execute()
+    }
+
+    class ToiletAsyncTask(context: MainActivity): AsyncTask<Unit, String, Unit>() {
+        private val activityReference = WeakReference(context)
+
+        override fun doInBackground(vararg params: Unit?) {
+            val activity = activityReference.get()!!
+            val markers = mutableListOf<Marker>()
+            val toilets = mutableListOf<Toilet>()
+            activity.parseJson(markers, toilets)
+
+            activity.handler.post {
+                markers.forEach { marker ->
+                    marker.map = activity.naverMap
+                    marker.onClickListener = Overlay.OnClickListener { p0 ->
+                        val marker = p0 as Marker
+
+                        if (marker.infoWindow == null)
+                            activity.infoWindow.open(marker)
+                        else
+                            activity.infoWindow.close()
+
+                        true
+                    }
+                }
+                activity.dbHelper.insertAllToilet(toilets)
+            }
+        }
+
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -126,11 +162,8 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
         val assetManager = resources.assets
         val inputStream = assetManager.open("nationalpublictoiletstandarddata.json")
         val jsonStr = inputStream.bufferedReader().use { it.readText() }
-
         val jsonObject = JSONObject(jsonStr)
         val jsonArr = jsonObject.getJSONArray("records")    // 32136
-        Log.d("json size", jsonArr.length().toString())
-
 
         for (i in 0 until jsonArr.length()) {
             val obj = jsonArr.getJSONObject(i)
@@ -238,7 +271,7 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
         }
     }
 
-    private fun initDB(naverMap: NaverMap, infoWindow: InfoWindow) {
+    private fun initDB() {
         dbHelper = ToiletDBHelper(this)
 
         // db에 전국공중화장실표준데이터를 asset에 저장한다.
@@ -265,36 +298,12 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
             return
         }
 
-        Toast.makeText(this, "데이터를 불러오는 중입니다.", Toast.LENGTH_SHORT).show()
-        // 백그라운드에서 marker를 생성해야 함.
-        executor.execute {
-            val markers = mutableListOf<Marker>()
-            val toilets = mutableListOf<Toilet>()
-            parseJson(markers, toilets)
 
-            handler.post {
-                markers.forEach { marker ->
-                    marker.map = naverMap
-                    marker.onClickListener = Overlay.OnClickListener { p0 ->
-                        val marker = p0 as Marker
-
-                        if (marker.infoWindow == null)
-                            infoWindow.open(marker)
-                        else
-                            infoWindow.close()
-
-                        true
-                    }
-                }
-                Log.d("toilet list size", toilets.size.toString())
-                dbHelper.insertAllToilet(toilets)
-            }
-        }
+        // 백그라운드에서 marker 생성
+        startTask()
     }
 
     private fun init() {
-
-
         drawerLayout.addDrawerListener(object: DrawerLayout.DrawerListener {
             override fun onDrawerStateChanged(newState: Int) {}
             override fun onDrawerSlide(drawerView: View, slideOffset: Float) {}
@@ -345,7 +354,7 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
         naverMap.locationOverlay.circleRadius = 400
         naverMap.locationTrackingMode = LocationTrackingMode.Follow
 
-        val infoWindow = InfoWindow()
+        infoWindow = InfoWindow()
         infoWindow.adapter = object: InfoWindow.DefaultTextAdapter(this) {
             override fun getText(p0: InfoWindow): CharSequence {
                 return infoWindow.marker!!.captionText
@@ -357,7 +366,7 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
         }
 
         initLocation()
-        initDB(naverMap, infoWindow)
+        initDB()
         init()
     }
 
