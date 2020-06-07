@@ -1,66 +1,111 @@
 package com.example.toilet4all
 
+import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import android.view.View
-import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.firebase.ui.database.FirebaseRecyclerOptions
+import com.google.firebase.database.*
 import kotlinx.android.synthetic.main.activity_board.*
+import kotlin.math.max
 
 class BoardActivity : AppCompatActivity() {
 
-    lateinit var adapter: BoardAdapter
-    var boardContentList = mutableListOf<Board>()
+    lateinit var layoutManager: LinearLayoutManager
+    lateinit var rdb: DatabaseReference
+    lateinit var adapter: PostAdapter
+    var postCnt: Long = 0
+    var lastPid: Long = -1
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_board)
+        initCount()
         init()
+        getExtra()
+        initBtn()
+    }
+
+    private fun getExtra() {
+        if (intent.hasExtra("post")) {
+            val post = intent.getSerializableExtra("post") as Post
+            rdb.child(post.pidx.toString()).setValue(post)
+        }
+    }
+
+    private fun initBtn() {
+        homeButton.setOnClickListener {
+            onBackPressed()
+        }
+
+        writeButton.setOnClickListener {
+            val intent = Intent(this, WriteActivity::class.java)
+            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
+            intent.putExtra("lastpidx", lastPid)
+            startActivity(intent)
+        }
+    }
+
+    private fun initCount() {
+        val dbRef = FirebaseDatabase.getInstance().getReference("boards")
+        dbRef.child("posts").addListenerForSingleValueEvent(object: ValueEventListener{
+            override fun onCancelled(p0: DatabaseError) {}
+            override fun onDataChange(p0: DataSnapshot) {
+                postCnt = p0.childrenCount
+                lastPid = max(postCnt, lastPid + 1)
+                Log.d("postcnt", postCnt.toString())
+            }
+        })
     }
 
     private fun init() {
-        /* test board */
-        boardContentList.add(Board("첫 번째 글", "첫 번째 글의 내용입니다.", "2020-06-05", "신윤섭"
-            , "1234"))
-        boardContentList.add(Board("두 번째 글", "두 번째 글의 내용입니다.", "2020-06-05", "김영경"
-            , "1234"))
-        boardContentList.add(Board("세 번째 글", "세 번째 글의 내용입니다.", "2020-06-05", "김아지"
-            , "1234"))
-        boardContentList.add(Board("네 번째 글", "네 번째 글의 내용입니다.", "2020-06-05", "다현"
-            , "1234"))
-        boardContentList.add(Board("다섯 번째 글", "다섯 번째 글의 내용입니다.", "2020-06-05", "쯔위"
-            , "1234"))
-        boardContentList.add(Board("여섯 번째 글", "여섯 번째 글의 내용입니다.", "2020-06-05", "나연"
-            , "1234"))
-        boardContentList.add(Board("일곱 번째 글", "일곱 번째 글의 내용입니다.", "2020-06-05", "사나"
-            , "1234"))
-        boardContentList.add(Board("여덟 번째 글", "여덟 번째 글의 내용입니다.", "2020-06-05", "모모"
-            , "1234"))
-        /* end test */
-
-        val layoutManager = LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false)
+        layoutManager = LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false)
         recyclerView.layoutManager = layoutManager
-        adapter = BoardAdapter(boardContentList)
-        adapter.itemClickListener = object : BoardAdapter.OnItemClickListener {
+        rdb = FirebaseDatabase.getInstance().getReference("boards/posts")
+        val query = FirebaseDatabase.getInstance().reference.child("boards/posts")
+            .orderByChild("pid").limitToLast(50)
+        val option = FirebaseRecyclerOptions.Builder<Post>()
+            .setQuery(query, Post::class.java).build()
+        adapter = PostAdapter(option)
+        adapter.itemClickListener = object : PostAdapter.OnItemClickListener {
             override fun onItemClick(
-                holder: BoardAdapter.ViewHolder,
                 view: View,
-                data: Board,
                 position: Int
             ) {
-                toast(position)
+                readPost(adapter.getItem(position))
+            }
+        }
+        adapter.itemLongClickListener = object: PostAdapter.OnItemLongClickListener {
+            override fun onItemLongClick(view: View, position: Int) {
+                removePost(adapter.getItem(position).pidx)
             }
         }
         recyclerView.adapter = adapter
         recyclerView.addItemDecoration(DividerItemDecoration(recyclerView.context, layoutManager.orientation))
-
-        homeButton.setOnClickListener {
-            onBackPressed()
-        }
     }
 
-    fun toast(position: Int) {
-        Toast.makeText(this, "$position 클릭", Toast.LENGTH_SHORT).show()
+    private fun removePost(pid: Long) {
+        rdb.child(pid.toString()).removeValue()
     }
+
+    override fun onStart() {
+        super.onStart()
+        adapter.startListening()
+    }
+
+    override fun onStop() {
+        super.onStop()
+        adapter.stopListening()
+    }
+
+    private fun readPost(post: Post) {
+        val intent = Intent(this, ReadActivity::class.java)
+        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
+        intent.putExtra("post", post)
+        startActivity(intent)
+    }
+
 }

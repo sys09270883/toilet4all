@@ -75,8 +75,16 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
                         true
                     }
                 }
-                activity.dbHelper.insertAllToilet(toilets)
             }
+
+            activity.dbHelper.insertAllToilet(toilets)
+        }
+
+        override fun onPreExecute() {
+            val activity = activityReference.get()!!
+            // 이 부분을 progress bar로 대체하는 것이 좋아보임.
+            Toast.makeText(activity, "데이터를 불러오는 중입니다.", Toast.LENGTH_LONG).show()
+            super.onPreExecute()
         }
 
     }
@@ -297,7 +305,6 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
             }
             return
         }
-
 
         // 백그라운드에서 marker 생성
         startTask()

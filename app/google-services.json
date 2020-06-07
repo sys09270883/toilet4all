@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "540892050021",
+    "firebase_url": "https://toilet4all-6368f.firebaseio.com",
+    "project_id": "toilet4all-6368f",
+    "storage_bucket": "toilet4all-6368f.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:540892050021:android:1ac7cd2d810156b8210c8c",
+        "android_client_info": {
+          "package_name": "com.example.toilet4all"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "540892050021-9usqat8i4t9gb8a64gftga41fvobfcaa.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.toilet4all",
+            "certificate_hash": "415c70f05ace75b865d2d2a119281fe99485fe74"
+          }
+        },
+        {
+          "client_id": "540892050021-3t3qns30nqlo9kco9cmtfedmrf144s5g.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCrADVszwAXD1UdZ5LH9a6r_BH35ffMNzQ"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "540892050021-3t3qns30nqlo9kco9cmtfedmrf144s5g.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
