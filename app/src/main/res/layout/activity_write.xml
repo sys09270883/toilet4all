@@ -36,10 +36,10 @@
         android:id="@+id/titleTextField"
         android:layout_width="357dp"
         android:layout_height="wrap_content"
-        android:layout_marginTop="3dp"
         android:ems="10"
         android:textColorHint="@color/appDarkColor"
         app:boxBackgroundColor="#ffffff"
+        android:layout_marginTop="10dp"
         app:boxStrokeColor="@color/appDarkColor"
         app:errorTextColor="@color/appDarkColor"
         app:hintTextColor="@color/appDarkColor"
@@ -56,68 +56,103 @@
             android:textCursorDrawable="@color/appDarkColor"
             android:textSize="16dp" />
 
+
     </com.google.android.material.textfield.TextInputLayout>
 
 
-    <EditText
-        android:id="@+id/nameEditTextView"
-        android:layout_width="139dp"
-        android:layout_height="47dp"
-        android:layout_marginTop="36dp"
-        android:ems="10"
-        android:inputType="textPersonName"
-        app:layout_constraintEnd_toStartOf="@+id/passwordEditTextView"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/contentEditTextView" />
-
-    <com.google.android.material.button.MaterialButton
-        android:id="@+id/saveButton"
-        android:layout_width="wrap_content"
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/nameTextField"
+        android:layout_width="357dp"
         android:layout_height="wrap_content"
-        android:layout_marginTop="32dp"
-        android:backgroundTint="@color/appDarkColor"
-        android:text="저장"
-        app:layout_constraintEnd_toStartOf="@+id/cancelButton"
-        app:layout_constraintHorizontal_bias="0.49"
+        android:ems="10"
+        android:textColorHint="@color/appDarkColor"
+        app:boxBackgroundColor="#ffffff"
+        android:layout_marginTop="10dp"
+        app:boxStrokeColor="@color/appDarkColor"
+        app:errorTextColor="@color/appDarkColor"
+        app:hintTextColor="@color/appDarkColor"
+        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/nameEditTextView" />
+        app:layout_constraintTop_toBottomOf="@+id/contentEditTextView">
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/nameEditTextView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="아이디"
+            android:textColorHint="@color/appDarkColor"
+            android:textCursorDrawable="@color/appDarkColor"
+            />
+
+
+    </com.google.android.material.textfield.TextInputLayout>
+
 
     <com.google.android.material.button.MaterialButton
         android:id="@+id/cancelButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="32dp"
-        android:layout_marginEnd="76dp"
-        android:layout_marginRight="76dp"
+        android:layout_marginTop="24dp"
+        android:layout_marginEnd="80dp"
+        android:layout_marginRight="80dp"
         android:backgroundTint="@color/appDarkColor"
         android:text="취소"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/passwordEditTextView" />
+        app:layout_constraintTop_toBottomOf="@+id/passwordTextField" />
 
-    <EditText
-        android:id="@+id/passwordEditTextView"
-        android:layout_width="119dp"
-        android:layout_height="38dp"
-        android:layout_marginTop="44dp"
-        android:layout_marginEnd="56dp"
-        android:layout_marginRight="56dp"
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/saveButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="80dp"
+        android:layout_marginLeft="80dp"
+        android:layout_marginTop="24dp"
+        android:backgroundTint="@color/appDarkColor"
+        android:text="저장"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/passwordTextField" />
+
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/passwordTextField"
+        android:layout_width="357dp"
+        android:layout_height="wrap_content"
         android:ems="10"
-        android:inputType="textPassword"
+        android:textColorHint="@color/appDarkColor"
+        android:layout_marginTop="10dp"
+        app:counterEnabled="true"
+        app:counterMaxLength="15"
+        app:passwordToggleEnabled="true"
+        app:boxBackgroundColor="#ffffff"
+        app:boxStrokeColor="@color/appDarkColor"
+        app:errorTextColor="@color/appDarkColor"
+        app:hintTextColor="@color/appDarkColor"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/contentEditTextView" />
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/nameTextField">
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/passwordEditTextView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="비밀번호"
+            android:inputType="textPassword"
+            android:textColorHint="@color/appDarkColor"
+            android:textCursorDrawable="@color/appDarkColor"
+            />
+
+    </com.google.android.material.textfield.TextInputLayout>
 
     <EditText
         android:id="@+id/contentEditTextView"
-        android:layout_width="354dp"
-        android:layout_height="331dp"
-        android:layout_marginTop="8dp"
+        android:layout_width="348dp"
+        android:layout_height="230dp"
+        android:layout_marginTop="20dp"
         android:ems="10"
         android:gravity="start|top"
         android:inputType="textMultiLine"
         android:paddingTop="10dp"
         android:textCursorDrawable="@color/appDarkColor"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.473"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/titleTextField" />
 

@@ -2,6 +2,8 @@ package com.example.toilet4all
 
 import android.content.Intent
 import android.os.Bundle
+import android.text.Editable
+import android.text.TextWatcher
 import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
 import kotlinx.android.synthetic.main.activity_write.*
@@ -41,6 +43,29 @@ class WriteActivity : AppCompatActivity() {
             intent.putExtra("post", post)
             startActivity(intent)
         }
+
+        nameEditTextView.addTextChangedListener(object: TextWatcher {
+            override fun afterTextChanged(s: Editable?) {
+                when {
+                    s.toString().isEmpty() -> nameTextField.error = "아이디를 입력하세요."
+                    isValid(s.toString()) -> nameTextField.error = null
+                    else -> nameTextField.error = "아이디는 한글, 영문만 가능합니다."
+                }
+            }
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
+        }
+        )
+    }
+    
+    private fun isValid(id: String): Boolean {
+        if (id.isEmpty())
+            return true
+        val idRegex = Regex("^[가-힣0-9a-zA-Z\\s]+\$")
+        val matchResult = idRegex.matches(id)
+        if (matchResult)
+            return true
+        return false
     }
 
     private fun getDate(): String {
