@@ -148,14 +148,14 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
         }
     }
 
-    private fun stopLocationUpdates() {
-        fusedLocationClient.removeLocationUpdates(locationCallback)
-    }
-
-    override fun onPause() {
-        super.onPause()
-        stopLocationUpdates()
-    }
+//    private fun stopLocationUpdates() {
+//        fusedLocationClient.removeLocationUpdates(locationCallback)
+//    }
+//
+//    override fun onPause() {
+//        super.onPause()
+//        stopLocationUpdates()
+//    }
 
     private fun initMap() {
         val fm = supportFragmentManager

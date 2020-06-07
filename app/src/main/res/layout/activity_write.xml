@@ -54,6 +54,7 @@
             android:hint="제목"
             android:textColorHint="@color/appDarkColor"
             android:textCursorDrawable="@color/appDarkColor"
+            android:cursorVisible="false"
             android:textSize="16dp" />
 
 
@@ -82,6 +83,7 @@
             android:hint="아이디"
             android:textColorHint="@color/appDarkColor"
             android:textCursorDrawable="@color/appDarkColor"
+            android:cursorVisible="false"
             />
 
 
@@ -138,6 +140,7 @@
             android:inputType="textPassword"
             android:textColorHint="@color/appDarkColor"
             android:textCursorDrawable="@color/appDarkColor"
+            android:cursorVisible="false"
             />
 
     </com.google.android.material.textfield.TextInputLayout>

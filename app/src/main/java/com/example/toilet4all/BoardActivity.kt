@@ -2,7 +2,6 @@ package com.example.toilet4all
 
 import android.content.Intent
 import android.os.Bundle
-import android.util.Log
 import android.view.View
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.DividerItemDecoration
@@ -10,20 +9,17 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.firebase.ui.database.FirebaseRecyclerOptions
 import com.google.firebase.database.*
 import kotlinx.android.synthetic.main.activity_board.*
-import kotlin.math.max
 
 class BoardActivity : AppCompatActivity() {
 
     lateinit var layoutManager: LinearLayoutManager
     lateinit var rdb: DatabaseReference
     lateinit var adapter: PostAdapter
-    var postCnt: Long = 0
     var lastPid: Long = -1
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_board)
-        initCount()
         init()
         getExtra()
         initBtn()
@@ -49,22 +45,24 @@ class BoardActivity : AppCompatActivity() {
         }
     }
 
-    private fun initCount() {
-        val dbRef = FirebaseDatabase.getInstance().getReference("boards")
-        dbRef.child("posts").addListenerForSingleValueEvent(object: ValueEventListener{
-            override fun onCancelled(p0: DatabaseError) {}
-            override fun onDataChange(p0: DataSnapshot) {
-                postCnt = p0.childrenCount
-                lastPid = max(postCnt, lastPid + 1)
-                Log.d("postcnt", postCnt.toString())
-            }
-        })
-    }
-
     private fun init() {
         layoutManager = LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false)
         recyclerView.layoutManager = layoutManager
         rdb = FirebaseDatabase.getInstance().getReference("boards/posts")
+
+        /* init last pid */
+        rdb.orderByChild("pid").limitToLast(1)
+            .addListenerForSingleValueEvent(object: ValueEventListener {
+                override fun onCancelled(p0: DatabaseError) {}
+                override fun onDataChange(p0: DataSnapshot) {
+                    for (child in p0.children) {
+                        lastPid = child.key!!.toLong()
+                    }
+                    lastPid++
+                }
+            })
+
+        /* set recycler view */
         val query = FirebaseDatabase.getInstance().reference.child("boards/posts")
             .orderByChild("pid").limitToLast(50)
         val option = FirebaseRecyclerOptions.Builder<Post>()
