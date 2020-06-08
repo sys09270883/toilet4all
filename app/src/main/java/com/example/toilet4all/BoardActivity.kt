@@ -1,8 +1,14 @@
 package com.example.toilet4all
 
+import android.app.ActionBar
 import android.content.Intent
 import android.os.Bundle
+import android.text.method.PasswordTransformationMethod
 import android.view.View
+import android.view.ViewGroup
+import android.widget.EditText
+import android.widget.Toast
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -28,7 +34,7 @@ class BoardActivity : AppCompatActivity() {
     private fun getExtra() {
         if (intent.hasExtra("post")) {
             val post = intent.getSerializableExtra("post") as Post
-            rdb.child(post.pidx.toString()).setValue(post)
+            rdb.child(post.pid.toString()).setValue(post)
         }
     }
 
@@ -78,7 +84,33 @@ class BoardActivity : AppCompatActivity() {
         }
         adapter.itemLongClickListener = object: PostAdapter.OnItemLongClickListener {
             override fun onItemLongClick(view: View, position: Int) {
-                removePost(adapter.getItem(position).pidx)
+                val targetPid = adapter.getItem(position).pid
+                val targetPassword = adapter.getItem(position).password
+                val builder = AlertDialog.Builder(this@BoardActivity)
+                var passwordEditText = EditText(this@BoardActivity)
+                passwordEditText.transformationMethod = PasswordTransformationMethod.getInstance()
+                passwordEditText.layoutParams = ViewGroup.LayoutParams(50, ActionBar.LayoutParams.WRAP_CONTENT)
+
+                builder.setTitle("게시글 삭제")
+                    .setMessage("비밀번호를 입력하세요.")
+                    .setCancelable(true)
+                    .setView(passwordEditText)
+                    .setPositiveButton("삭제") { _, _ ->
+                        if (passwordEditText.text.toString() == targetPassword) {
+                            removePost(targetPid)
+                            Toast.makeText(
+                                this@BoardActivity,
+                                "해당 게시글이 삭제되었습니다.",
+                                Toast.LENGTH_SHORT).show()
+                        }
+                        else
+                            Toast.makeText(
+                                this@BoardActivity,
+                                "비밀번호가 일치하지 않습니다.",
+                                Toast.LENGTH_SHORT).show()
+                    }
+                    .setNegativeButton("취소") { _, _ -> }
+                builder.create().show()
             }
         }
         recyclerView.adapter = adapter
