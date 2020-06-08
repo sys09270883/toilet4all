@@ -36,10 +36,10 @@
         android:id="@+id/titleTextField"
         android:layout_width="357dp"
         android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
         android:ems="10"
         android:textColorHint="@color/appDarkColor"
         app:boxBackgroundColor="#ffffff"
-        android:layout_marginTop="10dp"
         app:boxStrokeColor="@color/appDarkColor"
         app:errorTextColor="@color/appDarkColor"
         app:hintTextColor="@color/appDarkColor"
@@ -51,10 +51,10 @@
             android:id="@+id/titleEditTextView"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:cursorVisible="false"
             android:hint="제목"
             android:textColorHint="@color/appDarkColor"
             android:textCursorDrawable="@color/appDarkColor"
-            android:cursorVisible="false"
             android:textSize="16dp" />
 
 
@@ -65,10 +65,10 @@
         android:id="@+id/nameTextField"
         android:layout_width="357dp"
         android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
         android:ems="10"
         android:textColorHint="@color/appDarkColor"
         app:boxBackgroundColor="#ffffff"
-        android:layout_marginTop="10dp"
         app:boxStrokeColor="@color/appDarkColor"
         app:errorTextColor="@color/appDarkColor"
         app:hintTextColor="@color/appDarkColor"
@@ -80,11 +80,10 @@
             android:id="@+id/nameEditTextView"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:cursorVisible="false"
             android:hint="아이디"
             android:textColorHint="@color/appDarkColor"
-            android:textCursorDrawable="@color/appDarkColor"
-            android:cursorVisible="false"
-            />
+            android:textCursorDrawable="@color/appDarkColor" />
 
 
     </com.google.android.material.textfield.TextInputLayout>
@@ -94,61 +93,60 @@
         android:id="@+id/cancelButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="24dp"
-        android:layout_marginEnd="80dp"
-        android:layout_marginRight="80dp"
+        android:layout_marginEnd="72dp"
+        android:layout_marginRight="72dp"
+        android:layout_marginBottom="60dp"
         android:backgroundTint="@color/appDarkColor"
         android:text="취소"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/passwordTextField" />
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
 
     <com.google.android.material.button.MaterialButton
         android:id="@+id/saveButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="80dp"
-        android:layout_marginLeft="80dp"
-        android:layout_marginTop="24dp"
+        android:layout_marginBottom="60dp"
         android:backgroundTint="@color/appDarkColor"
         android:text="저장"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/passwordTextField" />
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@+id/cancelButton"
+        app:layout_constraintHorizontal_bias="0.472"
+        app:layout_constraintStart_toStartOf="parent" />
 
     <com.google.android.material.textfield.TextInputLayout
         android:id="@+id/passwordTextField"
         android:layout_width="357dp"
         android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
         android:ems="10"
         android:textColorHint="@color/appDarkColor"
-        android:layout_marginTop="10dp"
-        app:counterEnabled="true"
-        app:counterMaxLength="15"
-        app:passwordToggleEnabled="true"
         app:boxBackgroundColor="#ffffff"
         app:boxStrokeColor="@color/appDarkColor"
+        app:counterEnabled="true"
+        app:counterMaxLength="15"
         app:errorTextColor="@color/appDarkColor"
         app:hintTextColor="@color/appDarkColor"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/nameTextField">
+        app:layout_constraintTop_toBottomOf="@+id/nameTextField"
+        app:passwordToggleEnabled="true">
 
         <com.google.android.material.textfield.TextInputEditText
             android:id="@+id/passwordEditTextView"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:cursorVisible="false"
             android:hint="비밀번호"
             android:inputType="textPassword"
             android:textColorHint="@color/appDarkColor"
-            android:textCursorDrawable="@color/appDarkColor"
-            android:cursorVisible="false"
-            />
+            android:textCursorDrawable="@color/appDarkColor" />
 
     </com.google.android.material.textfield.TextInputLayout>
 
     <EditText
         android:id="@+id/contentEditTextView"
         android:layout_width="348dp"
-        android:layout_height="230dp"
+        android:layout_height="200dp"
         android:layout_marginTop="20dp"
         android:ems="10"
         android:gravity="start|top"

@@ -1,6 +1,5 @@
 package com.example.toilet4all
 
-import android.app.ActionBar
 import android.content.Intent
 import android.os.Bundle
 import android.text.method.PasswordTransformationMethod
@@ -89,7 +88,6 @@ class BoardActivity : AppCompatActivity() {
                 val builder = AlertDialog.Builder(this@BoardActivity)
                 var passwordEditText = EditText(this@BoardActivity)
                 passwordEditText.transformationMethod = PasswordTransformationMethod.getInstance()
-                passwordEditText.layoutParams = ViewGroup.LayoutParams(50, ActionBar.LayoutParams.WRAP_CONTENT)
 
                 builder.setTitle("게시글 삭제")
                     .setMessage("비밀번호를 입력하세요.")
