@@ -12,8 +12,8 @@ import android.os.Looper
 import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.View
-import android.widget.ProgressBar
 import android.widget.Toast
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.drawerlayout.widget.DrawerLayout
@@ -44,6 +44,7 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
     lateinit var locationCallback: LocationCallback
     lateinit var locationRequest: LocationRequest
     lateinit var locationSource: FusedLocationSource
+    lateinit var progressDialog: AlertDialog
 
     companion object {
         const val LOCATION_PERMISSION_REQUEST_CODE = 1000
@@ -56,7 +57,6 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
 
     class ToiletAsyncTask(context: MainActivity): AsyncTask<Unit, String, Unit>() {
         private val activityReference = WeakReference(context)
-        private lateinit var progressBar: ProgressBar
 
         override fun doInBackground(vararg params: Unit?) {
             val activity = activityReference.get()!!
@@ -85,9 +85,20 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
 
         override fun onPreExecute() {
             val activity = activityReference.get()!!
-            // TODO: replace to progress bar
-            Toast.makeText(activity, "데이터를 불러오는 중입니다.", Toast.LENGTH_LONG).show()
+            val builder = AlertDialog.Builder(activity)
+            activity.progressDialog = builder
+                .setView(R.layout.progress_bar_layout)
+                .setMessage("데이터를 불러오는 중입니다.")
+                .setCancelable(false)
+                .create()
+            activity.progressDialog.show()
             super.onPreExecute()
+        }
+
+        override fun onPostExecute(result: Unit?) {
+            val activity = activityReference.get()!!
+            activity.progressDialog.dismiss()
+            super.onPostExecute(result)
         }
 
     }
