@@ -68,10 +68,10 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
                 markers.forEach { marker ->
                     marker.map = activity.naverMap
                     marker.onClickListener = Overlay.OnClickListener { p0 ->
-                        val marker = p0 as Marker
+                        val selectedMarker = p0 as Marker
 
-                        if (marker.infoWindow == null)
-                            activity.infoWindow.open(marker)
+                        if (selectedMarker.infoWindow == null)
+                            activity.infoWindow.open(selectedMarker)
                         else
                             activity.infoWindow.close()
 
@@ -116,7 +116,7 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
             ActivityCompat.checkSelfPermission(this,
                 Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
             fusedLocationClient = LocationServices.getFusedLocationProviderClient(this)
-            fusedLocationClient?.lastLocation?.addOnSuccessListener {
+            fusedLocationClient.lastLocation?.addOnSuccessListener {
                 loc = LatLng(it.latitude, it.longitude)
             }
             startLocationUpdates()
