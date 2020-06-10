@@ -357,6 +357,7 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
         naverMap.locationTrackingMode = LocationTrackingMode.Follow
 
         infoWindow = InfoWindow()
+        infoWindow.alpha = 0.9f
         infoWindow.adapter = object: InfoWindow.DefaultViewAdapter(this) {
             override fun getContentView(p0: InfoWindow): View {
                 val view = LayoutInflater.from(this@MainActivity)
@@ -374,6 +375,8 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
                     view.womanHandicappedView.setColorFilter(Color.parseColor("#d3d3d3"), PorterDuff.Mode.SRC_IN)
                 if (toilet.ladiesChildrenToiletBowlNumber <= 0)
                     view.womanChildView.setColorFilter(Color.parseColor("#d3d3d3"), PorterDuff.Mode.SRC_IN)
+                if (toilet.unisexToiletYn == "Y")
+                    view.toiletView.setImageResource(R.drawable.ic_shared_toilets)
 
                 naverMap.moveCamera(CameraUpdate.scrollTo(p0.marker!!.position).animate(CameraAnimation.Easing))
                 return view
