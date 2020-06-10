@@ -12,7 +12,7 @@ import com.naver.maps.map.overlay.InfoWindow
 import com.naver.maps.map.overlay.Marker
 import com.naver.maps.map.util.MarkerIcons
 
-class ToiletDBHelper(var context: Context) : SQLiteOpenHelper(context, DB_NAME, null, DB_VERSION) {
+class ToiletDBHelper(context: Context) : SQLiteOpenHelper(context, DB_NAME, null, DB_VERSION) {
 
     companion object {
         val DB_VERSION = 1
@@ -43,7 +43,7 @@ class ToiletDBHelper(var context: Context) : SQLiteOpenHelper(context, DB_NAME, 
     }
 
     override fun onCreate(db: SQLiteDatabase?) {
-        val create_table= "create table if not exists " + TABLE_NAME + "(" +
+        val createTable= "create table if not exists " + TABLE_NAME + "(" +
                 TOILET_ID + " integer primary key autoincrement, " +
                 TOILET_TYPE + " varchar(50), " +
                 TOILET_NAME + " varchar(30), " +
@@ -66,20 +66,59 @@ class ToiletDBHelper(var context: Context) : SQLiteOpenHelper(context, DB_NAME, 
                 LATITUDE + " real, " +
                 HARDNESS + " real, " +
                 REFERENCE_DATA + " varchar(30))"
-        db?.execSQL(create_table)
+        db?.execSQL(createTable)
     }
 
     override fun onUpgrade(db: SQLiteDatabase?, oldVersion: Int, newVersion: Int) {
-        val drop_table = "drop table if exists " + TABLE_NAME
-        db?.execSQL(drop_table)
+        val dropTable = "drop table if exists " + TABLE_NAME
+        db?.execSQL(dropTable)
         onCreate(db)
     }
 
+    fun findToilet(toiletNm: String): Toilet? {
+        val db = this.readableDatabase
+        val findToilet = "select * from " + TABLE_NAME +
+                " where $TOILET_NAME = '$toiletNm'"
+        val cursor = db.rawQuery(findToilet, null)
+        if (cursor.count != 0) {
+            cursor.moveToFirst()
+            val toilet = Toilet(
+                cursor.getInt(0),
+                cursor.getString(1),
+                cursor.getString(2),
+                cursor.getString(3),
+                cursor.getString(4),
+                cursor.getString(5),
+                cursor.getInt(6),
+                cursor.getInt(7),
+                cursor.getInt(8),
+                cursor.getInt(9),
+                cursor.getInt(10),
+                cursor.getInt(11),
+                cursor.getInt(12),
+                cursor.getInt(13),
+                cursor.getInt(14),
+                cursor.getString(15),
+                cursor.getString(16),
+                cursor.getString(17),
+                cursor.getString(18),
+                cursor.getDouble(19),
+                cursor.getDouble(20),
+                cursor.getString(21)
+            )
+            cursor.close()
+            db.close()
+            return toilet
+        }
+        return null
+    }
+
     fun insertAllToilet(toilets: MutableList<Toilet>) {
+        /* total 29468 toilets */
         val db = this.writableDatabase
         db.beginTransaction()
         toilets.forEach { toilet ->
-            if (toilet.latitude > 1.0 && toilet.hardness > 1.0) {
+            if (toilet.latitude > 0.0 && toilet.hardness > 0.0) {
                 val toiletValues = ContentValues()
                 toiletValues.put(TOILET_TYPE, toilet.toiletType)
                 toiletValues.put(TOILET_NAME, toilet.tolietNm)
@@ -115,14 +154,14 @@ class ToiletDBHelper(var context: Context) : SQLiteOpenHelper(context, DB_NAME, 
         val db = this.readableDatabase
         val cursor = db.rawQuery(getAllToilet, null)
         if (cursor.count > 0) {
-            setMarker(naverMap, infoWindow, cursor, markers)
+            setMarker(cursor, markers)
         }
         cursor.close()
         db.close()
         return markers
     }
 
-    fun setMarker(naverMap: NaverMap, infoWindow: InfoWindow, cursor: Cursor, markers: ArrayList<Marker>) {
+    fun setMarker(cursor: Cursor, markers: ArrayList<Marker>) {
         cursor.moveToFirst()
         // 마커 예제: 공공데이터를 받아와서 마커를 표시하면 될듯 함.
 

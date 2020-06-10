@@ -4,13 +4,15 @@ import android.Manifest
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.Color
+import android.graphics.PorterDuff
 import android.os.AsyncTask
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
-import android.util.Log
 import android.view.Gravity
+import android.view.LayoutInflater
 import android.view.View
+import android.widget.ProgressBar
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
@@ -24,6 +26,7 @@ import com.naver.maps.map.overlay.Overlay
 import com.naver.maps.map.util.FusedLocationSource
 import com.naver.maps.map.util.MarkerIcons
 import kotlinx.android.synthetic.main.activity_main.*
+import kotlinx.android.synthetic.main.information_window_layout.view.*
 import org.json.JSONException
 import org.json.JSONObject
 import java.lang.ref.WeakReference
@@ -34,7 +37,6 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
     lateinit var dbHelper: ToiletDBHelper
     var backKeyPressedTime: Long = 0
     val handler = Handler(Looper.getMainLooper())
-    lateinit var pbHandler: Handler
     lateinit var naverMap: NaverMap
     lateinit var infoWindow: InfoWindow
     lateinit var loc: LatLng
@@ -54,6 +56,7 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
 
     class ToiletAsyncTask(context: MainActivity): AsyncTask<Unit, String, Unit>() {
         private val activityReference = WeakReference(context)
+        private lateinit var progressBar: ProgressBar
 
         override fun doInBackground(vararg params: Unit?) {
             val activity = activityReference.get()!!
@@ -82,7 +85,7 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
 
         override fun onPreExecute() {
             val activity = activityReference.get()!!
-            // 이 부분을 progress bar로 대체하는 것이 좋아보임.
+            // TODO: replace to progress bar
             Toast.makeText(activity, "데이터를 불러오는 중입니다.", Toast.LENGTH_LONG).show()
             super.onPreExecute()
         }
@@ -244,12 +247,12 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
                 position = LatLng(latitude, hardness)
                 icon = MarkerIcons.BLACK
                 iconTintColor = Color.GREEN
-                captionText = toiletNm
                 alpha = 0.8f
                 width = Marker.SIZE_AUTO
                 height = Marker.SIZE_AUTO
                 isHideCollidedSymbols = true
                 isHideCollidedMarkers = true
+                captionText = toiletNm
             }
 
             toilets += Toilet(
@@ -282,10 +285,8 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
     private fun initDB() {
         dbHelper = ToiletDBHelper(this)
 
-        // db에 전국공중화장실표준데이터를 asset에 저장한다.
-        // json 파일을 파싱하여 toilet 객체를 만들고 db에 넣어줌.
+        /* internal database already exists */
         if (dbHelper.getCount() > 0) {
-            // db에 데이터가 이미 있으면 맵에 뿌려줘야함.
             val markers = dbHelper.getAllToilet(naverMap, infoWindow)
 
             handler.post {
@@ -306,7 +307,7 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
             return
         }
 
-        // 백그라운드에서 marker 생성
+        /* else initialize in the background */
         startTask()
     }
 
@@ -322,7 +323,6 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
             drawerLayout.openDrawer(Gravity.LEFT)
         }
 
-        // boardActivity에 intent해야 함.
         boardBtn.setOnClickListener {
             val intent = Intent(this, BoardActivity::class.java)
             startActivity(intent)
@@ -343,11 +343,6 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
     override fun onMapReady(p0: NaverMap) {
         naverMap = p0
         naverMap.locationSource = locationSource
-        val lat = locationSource.lastLocation?.latitude
-        val lng = locationSource.lastLocation?.longitude
-        if (lat != null && lng != null)
-            naverMap.moveCamera(CameraUpdate.scrollTo(LatLng(lat, lng)))
-        Log.d("현재위치", lat.toString() + ", " + lng.toString())
         naverMap.mapType = NaverMap.MapType.Basic
         naverMap.maxZoom = 16.0
         naverMap.minZoom = 12.0
@@ -362,13 +357,31 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
         naverMap.locationTrackingMode = LocationTrackingMode.Follow
 
         infoWindow = InfoWindow()
-        infoWindow.adapter = object: InfoWindow.DefaultTextAdapter(this) {
-            override fun getText(p0: InfoWindow): CharSequence {
-                return infoWindow.marker!!.captionText
+        infoWindow.adapter = object: InfoWindow.DefaultViewAdapter(this) {
+            override fun getContentView(p0: InfoWindow): View {
+                val view = LayoutInflater.from(this@MainActivity)
+                    .inflate(R.layout.information_window_layout, null, false)
+                val toilet = dbHelper.findToilet(p0.marker!!.captionText)!!
+                view.infoTitleView.text = toilet.tolietNm
+                view.infoSubTitleView.text = toilet.toiletType
+                view.dateView.text = "업데이트 | " + toilet.referenceData
+
+                if (toilet.menHandicapToiletBowlNumber + toilet.menHandicapUrinalNumber <= 0)
+                    view.manHandicappedView.setColorFilter(Color.parseColor("#d3d3d3"), PorterDuff.Mode.SRC_IN)
+                if (toilet.menChildrenToiletBottleNumber + toilet.menChildrenUrinalNumber <= 0)
+                    view.manChildView.setColorFilter(Color.parseColor("#d3d3d3"), PorterDuff.Mode.SRC_IN)
+                if (toilet.ladiesHandicapToiletBowlNumber <= 0)
+                    view.womanHandicappedView.setColorFilter(Color.parseColor("#d3d3d3"), PorterDuff.Mode.SRC_IN)
+                if (toilet.ladiesChildrenToiletBowlNumber <= 0)
+                    view.womanChildView.setColorFilter(Color.parseColor("#d3d3d3"), PorterDuff.Mode.SRC_IN)
+
+                naverMap.moveCamera(CameraUpdate.scrollTo(p0.marker!!.position).animate(CameraAnimation.Easing))
+                return view
             }
+
         }
 
-        naverMap.setOnMapClickListener { point, coord  ->
+        naverMap.setOnMapClickListener { _, _ ->
             infoWindow.close()
         }
 

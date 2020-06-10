@@ -10,9 +10,9 @@ data class Toilet(
     var menToiletBowlNumber: Int,                   // 남성용-대변기수
     var menUrineNumber: Int,                        // 남성용-소변기수
     var menHandicapToiletBowlNumber: Int,           // 남성용-장애인용대변기수
-    var menHandicapUrinalNumber: Int,               // 남성용-장애인용대변기수
-    var menChildrenToiletBottleNumber: Int,         // 남성용-장애인용대변기수
-    var menChildrenUrinalNumber: Int,               // 남성용-장애인용대변기수
+    var menHandicapUrinalNumber: Int,               // 남성용-장애인용소변기수
+    var menChildrenToiletBottleNumber: Int,         // 남성용-어린이용대변기수
+    var menChildrenUrinalNumber: Int,               // 남성용-어린이용소변기수
     var ladiesToiletBowlNumber: Int,                // 여성용-대변기수
     var ladiesHandicapToiletBowlNumber: Int,        // 여성용-장애인용대변기수
     var ladiesChildrenToiletBowlNumber: Int,        // 여성용-어린이용대변기수

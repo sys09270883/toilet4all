@@ -15,7 +15,7 @@
         android:paddingLeft="65dp"
         android:paddingTop="20dp"
         android:paddingBottom="20dp"
-        android:text="자유게시판"
+        android:text="건의게시판"
         android:textColor="#FFFFFF"
         android:textSize="24dp"
         app:layout_constraintTop_toTopOf="parent"
