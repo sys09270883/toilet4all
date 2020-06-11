@@ -113,7 +113,9 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-        locationSource = FusedLocationSource(this, LOCATION_PERMISSION_REQUEST_CODE)
+        synchronized(this) {
+            locationSource = FusedLocationSource(this, LOCATION_PERMISSION_REQUEST_CODE)
+        }
         initMap()
     }
 
@@ -157,7 +159,7 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
             ActivityCompat.checkSelfPermission(this,
                 Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
             fusedLocationClient = LocationServices.getFusedLocationProviderClient(this)
-            fusedLocationClient?.lastLocation?.addOnSuccessListener {
+            fusedLocationClient.lastLocation?.addOnSuccessListener {
                 loc = LatLng(it.latitude, it.longitude)
             }
             fusedLocationClient.requestLocationUpdates(
@@ -169,14 +171,14 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
         }
     }
 
-//    private fun stopLocationUpdates() {
-//        fusedLocationClient.removeLocationUpdates(locationCallback)
-//    }
-//
-//    override fun onPause() {
-//        super.onPause()
-//        stopLocationUpdates()
-//    }
+    private fun stopLocationUpdates() {
+        fusedLocationClient.removeLocationUpdates(locationCallback)
+    }
+
+    override fun onPause() {
+        super.onPause()
+        stopLocationUpdates()
+    }
 
     private fun initMap() {
         val fm = supportFragmentManager
@@ -315,10 +317,10 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
                 markers.forEach { marker ->
                     marker.map = naverMap
                     marker.onClickListener = Overlay.OnClickListener { p0 ->
-                        val marker = p0 as Marker
+                        val selectedMarker = p0 as Marker
 
-                        if (marker.infoWindow == null)
-                            infoWindow.open(marker)
+                        if (selectedMarker.infoWindow == null)
+                            infoWindow.open(selectedMarker)
                         else
                             infoWindow.close()
 
