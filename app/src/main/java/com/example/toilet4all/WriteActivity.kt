@@ -39,6 +39,14 @@ class WriteActivity : AppCompatActivity() {
                 Toast.makeText(this, "아이디는 한글, 영문만 가능합니다.", Toast.LENGTH_SHORT).show()
                 return@setOnClickListener
             }
+            else if (passwordEditTextView.text?.isEmpty()!!) {
+                Toast.makeText(this, "비밀번호를 입력하세요.", Toast.LENGTH_SHORT).show()
+                return@setOnClickListener
+            }
+            else if (passwordEditTextView.text?.length!! > 15) {
+                Toast.makeText(this, "비밀번호는 15자 이내입니다.", Toast.LENGTH_SHORT).show()
+                return@setOnClickListener
+            }
             val post = Post(
                 pidx,
                 titleEditTextView.text.toString(),
