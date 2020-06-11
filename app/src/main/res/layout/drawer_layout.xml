@@ -1,136 +1,183 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:orientation="vertical"
     android:layout_width="280dp"
     android:layout_height="match_parent"
     android:layout_gravity="start"
     android:id="@+id/drawerView"
-    android:background="@color/appDarkColor"
+    android:background="#ffffff"
     android:clickable="true"
     >
 
-    <RelativeLayout
+    <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_height="wrap_content"
         android:orientation="horizontal"
-        android:background="@color/appDarkColor">
+        android:background="@color/appGray"
+        android:paddingBottom="20dp"
+        >
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_centerHorizontal="true"
+            android:layout_marginTop="44dp"
             android:text="201511271 신윤섭"
-            android:textSize="14dp"
-            android:textColor="#ffffff"
-            android:layout_marginTop="60dp"
-            android:layout_centerHorizontal="true">
-        </TextView>
+            android:textSize="10dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.849"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
 
         <ImageView
+            android:id="@+id/genter_icon"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:id="@+id/genter_icon"
+            android:src="@drawable/ic_settings_big"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
             android:layout_marginTop="20dp"
             android:layout_marginLeft="20dp"
             android:layout_marginStart="20dp"
-            android:src="@drawable/ic_settings_big"
-            >
-        </ImageView>
+            />
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="설정"
             android:textSize="26dp"
-            android:textColor="#ffffff"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
             android:layout_marginTop="25dp"
             android:layout_marginLeft="80dp"
-            >
-        </TextView>
+            android:layout_marginStart="80dp"
+            />
+    </androidx.constraintlayout.widget.ConstraintLayout>
 
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="1dp"
-            android:layout_marginTop="270dp"
-            android:background="#80ffffff"></LinearLayout>
-
-        <ImageView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="298dp"
-            android:layout_marginLeft="20dp">
-<!--            android:src="@drawable/motion_icon_off"-->
-        </ImageView>
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="거리 설정"
-            android:textColor="#ffffff"
-            android:id="@+id/nav_ex"
-            android:layout_marginTop="298dp"
-            android:layout_marginLeft="44dp"
-            >
-        </TextView>
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="1dp"
-            android:background="#80ffffff"
-            android:layout_marginTop="340dp">
-        </LinearLayout>
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:paddingTop="20dp"
+        >
 
         <ImageView
+            android:id="@+id/drawerToiletImageView"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="368dp"
-            android:layout_marginLeft="20dp">
-<!--            android:src="@drawable/motion_icon_off"-->
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            android:layout_marginTop="20dp"
+            android:layout_marginLeft="20dp"
+            android:layout_marginStart="20dp"
+            android:paddingBottom="10dp"
+            android:src="@drawable/ic_toilets_drawer"
+            >
         </ImageView>
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="남여공용 여부"
-            android:textColor="#ffffff"
             android:id="@+id/nav_info"
-            android:layout_marginTop="368dp"
-            android:layout_marginLeft="44dp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            android:layout_marginTop="20dp"
+            android:layout_marginLeft="65dp"
+            android:layout_marginStart="65dp"
             >
         </TextView>
 
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="1dp"
-            android:background="#80ffffff"
-            android:layout_marginTop="410dp">
-        </LinearLayout>
-
-        <ImageView
+        <RadioGroup
+            android:id="@+id/radioGroup"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="438dp"
-            android:layout_marginLeft="20dp">
-<!--            android:src="@drawable/motion_icon_off"-->
+            android:layout_marginStart="36dp"
+            android:layout_marginLeft="36dp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/drawerToiletImageView"
+            >
+
+            <RadioButton
+                android:id="@+id/sharedToiletRadioBtn"
+                android:text="공용"
+                android:checked="false"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"/>
+            <RadioButton
+                android:id="@+id/separatedToiletRadioBtn"
+                android:layout_width="wrap_content"
+                android:text="분리"
+                android:checked="false"
+                android:layout_height="wrap_content"/>
+            <RadioButton
+                android:id="@+id/allToiletRadioBtn"
+                android:layout_width="wrap_content"
+                android:text="모두"
+                android:checked="false"
+                android:layout_height="wrap_content"/>
+        </RadioGroup>
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:paddingTop="20dp"
+        >
+
+        <ImageView
+            android:id="@+id/facilityImageView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            android:layout_marginTop="20dp"
+            android:layout_marginLeft="20dp"
+            android:layout_marginStart="20dp"
+            android:paddingBottom="10dp"
+            android:src="@drawable/ic_disabled_icon_drawer">
+
         </ImageView>
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="편의시설"
-            android:textColor="#ffffff"
             android:id="@+id/nav_help"
-            android:layout_marginTop="438dp"
-            android:layout_marginLeft="44dp"
-            >
-        </TextView>
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            android:layout_marginTop="20dp"
+            android:layout_marginLeft="65dp"
+            android:layout_marginStart="65dp"
+            />
 
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="1dp"
-            android:background="#80ffffff"
-            android:layout_marginTop="480dp">
-        </LinearLayout>
+        <CheckBox
+            android:id="@+id/disabledToiletCheckBox"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="36dp"
+            android:layout_marginLeft="36dp"
+            android:text="장애"
+            android:checked="false"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/facilityImageView" />
 
-    </RelativeLayout>
+        <CheckBox
+            android:id="@+id/childToiletCheckBox"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="36dp"
+            android:layout_marginLeft="36dp"
+            android:text="아동"
+            android:checked="false"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/disabledToiletCheckBox" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
 
 </LinearLayout>

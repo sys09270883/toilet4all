@@ -6,9 +6,8 @@ import android.database.Cursor
 import android.database.sqlite.SQLiteDatabase
 import android.database.sqlite.SQLiteOpenHelper
 import android.graphics.Color
+import android.util.Log
 import com.naver.maps.geometry.LatLng
-import com.naver.maps.map.NaverMap
-import com.naver.maps.map.overlay.InfoWindow
 import com.naver.maps.map.overlay.Marker
 import com.naver.maps.map.util.MarkerIcons
 
@@ -70,7 +69,7 @@ class ToiletDBHelper(context: Context) : SQLiteOpenHelper(context, DB_NAME, null
     }
 
     override fun onUpgrade(db: SQLiteDatabase?, oldVersion: Int, newVersion: Int) {
-        val dropTable = "drop table if exists " + TABLE_NAME
+        val dropTable = "drop table if exists $TABLE_NAME"
         db?.execSQL(dropTable)
         onCreate(db)
     }
@@ -148,46 +147,85 @@ class ToiletDBHelper(context: Context) : SQLiteOpenHelper(context, DB_NAME, null
         db.endTransaction()
     }
 
-    fun getAllToilet(naverMap: NaverMap, infoWindow: InfoWindow): ArrayList<Marker> {
-        val markers = ArrayList<Marker>()
+    fun getAllToilet(markers: ArrayList<Marker>) {
         val getAllToilet = "select * from " + TABLE_NAME
         val db = this.readableDatabase
         val cursor = db.rawQuery(getAllToilet, null)
-        if (cursor.count > 0) {
+        if (cursor.count > 0)
             setMarker(cursor, markers)
-        }
         cursor.close()
         db.close()
-        return markers
     }
 
-    fun setMarker(cursor: Cursor, markers: ArrayList<Marker>) {
-        cursor.moveToFirst()
-        // 마커 예제: 공공데이터를 받아와서 마커를 표시하면 될듯 함.
+    private fun setMarker(cursor: Cursor, markers: ArrayList<Marker>) {
+        synchronized(this) {
+            cursor.moveToFirst()
+            do {
+                val lat = cursor.getString(19).toDouble()   // 위도
+                val lng = cursor.getString(20).toDouble()   // 경도
+                val toiletName = cursor.getString(2)
 
-        do {
-            val lat = cursor.getString(19).toDouble()   // 위도
-            val lng = cursor.getString(20).toDouble()   // 경도
-            val toiletName = cursor.getString(2)
-
-            markers += Marker().apply {
-                position = LatLng(lat, lng)
-                icon = MarkerIcons.BLACK
-                iconTintColor = Color.GREEN
-                captionText = toiletName
-                alpha = 0.8f
-                width = Marker.SIZE_AUTO
-                height = Marker.SIZE_AUTO
-                isHideCollidedSymbols = true
-                isHideCollidedMarkers = true
-            }
-        } while (cursor.moveToNext())
+                markers += Marker().apply {
+                    position = LatLng(lat, lng)
+                    icon = MarkerIcons.BLACK
+                    iconTintColor = Color.GREEN
+                    captionText = toiletName
+                    alpha = 0.8f
+                    width = Marker.SIZE_AUTO
+                    height = Marker.SIZE_AUTO
+                    isHideCollidedSymbols = true
+                    isHideCollidedMarkers = true
+                }
+            } while (cursor.moveToNext())
+        }
     }
 
     fun getCount(): Int {
         val db = this.readableDatabase
-        val cursor = db.rawQuery("select * from " + TABLE_NAME, null)
+        val cursor = db.rawQuery("select * from $TABLE_NAME", null)
         return cursor.count
+    }
+
+    fun getOptionMarkers(markers: ArrayList<Marker>, options: Int) {
+        markers.clear()
+        val db = this.readableDatabase
+        var query = "select * from $TABLE_NAME"
+
+        if ((options and 0b1000) == 0b1000)
+            query += " where $UNISEX_TOILET_YN = 'Y'"
+        if ((options and 0b0100) == 0b0100) {
+            query += if ((options shr 3) > 0)
+                " and "
+            else
+                " where "
+            query += "$UNISEX_TOILET_YN = 'N'"
+        }
+        if ((options and 0b0010) == 0b0010) {
+            query += if ((options shr 2) > 0)
+                " and "
+            else
+                " where "
+            query += "($MEN_HANDICAP_TOILET_BOWL_NUMBER > 0 or $MEN_HANDICAP_URINAL_NUMBER > 0 or " +
+                    "$LADIES_HANDICAP_TOILET_BOWL_NUMBER > 0)"
+        }
+        if ((options and 0b0001) == 0b0001) {
+            query += if ((options shr 1) > 0)
+                " and "
+            else
+                " where "
+            query += "($MEN_CHILDREN_URINAL_NUMBER > 0 or $MEN_CHILDREN_TOILET_BOTTLE_NUMBER > 0 or " +
+                    "$LADIES_CHILDREN_TOILET_BOWL_NUMBER > 0)"
+        }
+
+        Log.d("options", options.toString())
+        Log.d("query", query)
+        val cursor = db.rawQuery(query, null)
+        if (cursor.count > 0)
+            setMarker(cursor, markers)
+
+        Log.d("size", markers.size.toString())
+        cursor.close()
+        db.close()
     }
 
 }

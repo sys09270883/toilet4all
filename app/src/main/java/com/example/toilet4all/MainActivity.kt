@@ -26,6 +26,7 @@ import com.naver.maps.map.overlay.Overlay
 import com.naver.maps.map.util.FusedLocationSource
 import com.naver.maps.map.util.MarkerIcons
 import kotlinx.android.synthetic.main.activity_main.*
+import kotlinx.android.synthetic.main.drawer_layout.*
 import kotlinx.android.synthetic.main.information_window_layout.view.*
 import org.json.JSONException
 import org.json.JSONObject
@@ -45,28 +46,36 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
     lateinit var locationRequest: LocationRequest
     lateinit var locationSource: FusedLocationSource
     lateinit var progressDialog: AlertDialog
+    var markers = ArrayList<Marker>()
+    var lastOptions = 0
 
     companion object {
         const val LOCATION_PERMISSION_REQUEST_CODE = 1000
     }
 
-    private fun startTask() {
-        val task = ToiletAsyncTask(this)
+    private fun startTask(options: Int, isFirst: Boolean = false) {
+        val task = ToiletAsyncTask(this, options, isFirst)
         task.execute()
     }
 
-    class ToiletAsyncTask(context: MainActivity): AsyncTask<Unit, String, Unit>() {
+    class ToiletAsyncTask(context: MainActivity, val options: Int, val isFirst: Boolean = false)
+        : AsyncTask<Unit, String, Unit>() {
         private val activityReference = WeakReference(context)
 
         override fun doInBackground(vararg params: Unit?) {
             val activity = activityReference.get()!!
-            val markers = mutableListOf<Marker>()
-            val toilets = mutableListOf<Toilet>()
-            activity.parseJson(markers, toilets)
+
+            if (isFirst) {
+                val toilets = ArrayList<Toilet>()
+                activity.parseJson(activity.markers, toilets)
+                activity.dbHelper.insertAllToilet(toilets)
+            }
 
             activity.handler.post {
-                markers.forEach { marker ->
+                activity.lastOptions = options
+                activity.markers.forEach { marker ->
                     marker.map = activity.naverMap
+
                     marker.onClickListener = Overlay.OnClickListener { p0 ->
                         val selectedMarker = p0 as Marker
 
@@ -79,8 +88,6 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
                     }
                 }
             }
-
-            activity.dbHelper.insertAllToilet(toilets)
         }
 
         override fun onPreExecute() {
@@ -88,7 +95,7 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
             val builder = AlertDialog.Builder(activity)
             activity.progressDialog = builder
                 .setView(R.layout.progress_bar_layout)
-                .setMessage("데이터를 불러오는 중입니다.")
+                .setMessage("데이터를 저장하는 중입니다.")
                 .setCancelable(false)
                 .create()
             activity.progressDialog.show()
@@ -180,12 +187,12 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
         mapFragment.getMapAsync(this)
     }
 
-    private fun parseJson(markers: MutableList<Marker>,  toilets: MutableList<Toilet>) {
+    private fun parseJson(markers: ArrayList<Marker>, toilets: ArrayList<Toilet>) {
         val assetManager = resources.assets
         val inputStream = assetManager.open("nationalpublictoiletstandarddata.json")
         val jsonStr = inputStream.bufferedReader().use { it.readText() }
         val jsonObject = JSONObject(jsonStr)
-        val jsonArr = jsonObject.getJSONArray("records")    // 32136
+        val jsonArr = jsonObject.getJSONArray("records")
 
         for (i in 0 until jsonArr.length()) {
             val obj = jsonArr.getJSONObject(i)
@@ -297,8 +304,12 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
         dbHelper = ToiletDBHelper(this)
 
         /* internal database already exists */
-        if (dbHelper.getCount() > 0) {
-            val markers = dbHelper.getAllToilet(naverMap, infoWindow)
+        var cnt: Int
+        synchronized(this) {
+            cnt = dbHelper.getCount()
+        }
+        if (cnt > 0) {
+            dbHelper.getAllToilet(markers)
 
             handler.post {
                 markers.forEach { marker ->
@@ -317,16 +328,35 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
             }
             return
         }
-
-        /* else initialize in the background */
-        startTask()
+        else
+            startTask(0, true)
     }
 
     private fun init() {
         drawerLayout.addDrawerListener(object: DrawerLayout.DrawerListener {
             override fun onDrawerStateChanged(newState: Int) {}
             override fun onDrawerSlide(drawerView: View, slideOffset: Float) {}
-            override fun onDrawerClosed(drawerView: View) {}
+            override fun onDrawerClosed(drawerView: View) {
+                var options = 0
+                if (sharedToiletRadioBtn.isChecked)
+                    options = options or 0b1000
+                if (separatedToiletRadioBtn.isChecked)
+                    options = options or 0b0100
+                if (disabledToiletCheckBox.isChecked)
+                    options = options or 0b0010
+                if (childToiletCheckBox.isChecked)
+                    options = options or 0b0001
+
+                if (lastOptions == options)
+                    return
+
+                for (marker in markers) {
+                    marker.map = null
+                }
+                dbHelper.getOptionMarkers(markers, options)
+
+                startTask(options)
+            }
             override fun onDrawerOpened(drawerView: View) {}
         })
 
@@ -356,7 +386,7 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
         naverMap.locationSource = locationSource
         naverMap.mapType = NaverMap.MapType.Basic
         naverMap.maxZoom = 16.0
-        naverMap.minZoom = 12.0
+//        naverMap.minZoom = 12.0
         naverMap.uiSettings.isLocationButtonEnabled = true
         naverMap.uiSettings.isCompassEnabled = true
         naverMap.uiSettings.isScaleBarEnabled = true
