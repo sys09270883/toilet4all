@@ -59,7 +59,7 @@
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 
-    <include layout="@layout/drawer_layout"/>
+    <include layout="@layout/drawer_layout_2"/>
 
 
 </androidx.drawerlayout.widget.DrawerLayout>
