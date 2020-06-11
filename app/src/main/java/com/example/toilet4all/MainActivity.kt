@@ -171,14 +171,14 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
         }
     }
 
-    private fun stopLocationUpdates() {
-        fusedLocationClient.removeLocationUpdates(locationCallback)
-    }
-
-    override fun onPause() {
-        super.onPause()
-        stopLocationUpdates()
-    }
+//    private fun stopLocationUpdates() {
+//        fusedLocationClient.removeLocationUpdates(locationCallback)
+//    }
+//
+//    override fun onPause() {
+//        super.onPause()
+//        stopLocationUpdates()
+//    }
 
     private fun initMap() {
         val fm = supportFragmentManager
@@ -374,6 +374,10 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
     }
 
     override fun onBackPressed() {
+        if (drawerLayout.isDrawerOpen(Gravity.LEFT)) {
+            drawerLayout.closeDrawer(Gravity.LEFT)
+            return
+        }
         if (System.currentTimeMillis() > backKeyPressedTime + 2000) {
             backKeyPressedTime = System.currentTimeMillis()
             Toast.makeText(this, "한 번 더 누르면 앱을 종료합니다.", Toast.LENGTH_SHORT).show()
@@ -388,7 +392,7 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
         naverMap.locationSource = locationSource
         naverMap.mapType = NaverMap.MapType.Basic
         naverMap.maxZoom = 16.0
-//        naverMap.minZoom = 12.0
+        naverMap.minZoom = 12.0
         naverMap.uiSettings.isLocationButtonEnabled = true
         naverMap.uiSettings.isCompassEnabled = true
         naverMap.uiSettings.isScaleBarEnabled = true
