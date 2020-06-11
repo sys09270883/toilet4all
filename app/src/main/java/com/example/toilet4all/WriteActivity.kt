@@ -5,6 +5,7 @@ import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
 import android.util.Log
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import kotlinx.android.synthetic.main.activity_write.*
 import java.util.*
@@ -30,6 +31,14 @@ class WriteActivity : AppCompatActivity() {
         }
 
         saveButton.setOnClickListener {
+            if (nameEditTextView.text?.isEmpty()!!) {
+                Toast.makeText(this, "아이디를 입력하세요.", Toast.LENGTH_SHORT).show()
+                return@setOnClickListener
+            }
+            else if (!isValid(nameEditTextView.text.toString())) {
+                Toast.makeText(this, "아이디는 한글, 영문만 가능합니다.", Toast.LENGTH_SHORT).show()
+                return@setOnClickListener
+            }
             val post = Post(
                 pidx,
                 titleEditTextView.text.toString(),
@@ -52,7 +61,11 @@ class WriteActivity : AppCompatActivity() {
                     else -> nameTextField.error = "아이디는 한글, 영문만 가능합니다."
                 }
             }
-            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
+                when {
+                    s.toString().isEmpty() -> nameTextField.error = "아이디를 입력하세요."
+                }
+            }
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
         }
         )
@@ -60,7 +73,7 @@ class WriteActivity : AppCompatActivity() {
     
     private fun isValid(id: String): Boolean {
         if (id.isEmpty())
-            return true
+            return false
         val idRegex = Regex("^[가-힣0-9a-zA-Z\\s]+\$")
         val matchResult = idRegex.matches(id)
         if (matchResult)
