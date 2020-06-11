@@ -51,6 +51,8 @@ class BoardActivity : AppCompatActivity() {
 
     private fun init() {
         layoutManager = LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false)
+        layoutManager.reverseLayout = true
+        layoutManager.stackFromEnd = true
         recyclerView.layoutManager = layoutManager
         rdb = FirebaseDatabase.getInstance().getReference("boards/posts")
 
