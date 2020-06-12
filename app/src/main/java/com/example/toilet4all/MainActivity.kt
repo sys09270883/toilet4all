@@ -177,7 +177,6 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
                 locationCallback,
                 Looper.getMainLooper()
             )
-
         }
     }
 
@@ -187,16 +186,6 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
 
     override fun onPause() {
         super.onPause()
-        stopLocationUpdates()
-    }
-
-    override fun onResume() {
-        super.onResume()
-        startLocationUpdates()
-    }
-
-    override fun onDestroy() {
-        super.onDestroy()
         stopLocationUpdates()
     }
 
@@ -403,6 +392,8 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
             return
         }
         else {
+            markers.clear()
+            moveTaskToBack(true)
             finish()
         }
     }
