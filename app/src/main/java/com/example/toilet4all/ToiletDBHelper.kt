@@ -147,37 +147,25 @@ class ToiletDBHelper(context: Context) : SQLiteOpenHelper(context, DB_NAME, null
         db.endTransaction()
     }
 
-    fun getAllToilet(markers: ArrayList<Marker>) {
-        val getAllToilet = "select * from " + TABLE_NAME
-        val db = this.readableDatabase
-        val cursor = db.rawQuery(getAllToilet, null)
-        if (cursor.count > 0)
-            setMarker(cursor, markers)
-        cursor.close()
-        db.close()
-    }
-
     private fun setMarker(cursor: Cursor, markers: ArrayList<Marker>) {
-        synchronized(this) {
-            cursor.moveToFirst()
-            do {
-                val lat = cursor.getString(19).toDouble()   // 위도
-                val lng = cursor.getString(20).toDouble()   // 경도
-                val toiletName = cursor.getString(2)
+        cursor.moveToFirst()
+        do {
+            val lat = cursor.getString(19).toDouble()
+            val lng = cursor.getString(20).toDouble()
+            val toiletName = cursor.getString(2)
 
-                markers += Marker().apply {
-                    position = LatLng(lat, lng)
-                    icon = MarkerIcons.BLACK
-                    iconTintColor = Color.GREEN
-                    captionText = toiletName
-                    alpha = 0.8f
-                    width = Marker.SIZE_AUTO
-                    height = Marker.SIZE_AUTO
-                    isHideCollidedSymbols = true
-                    isHideCollidedMarkers = true
-                }
-            } while (cursor.moveToNext())
-        }
+            markers += Marker().apply {
+                position = LatLng(lat, lng)
+                icon = MarkerIcons.BLACK
+                iconTintColor = Color.GREEN
+                captionText = toiletName
+                alpha = 0.8f
+                width = Marker.SIZE_AUTO
+                height = Marker.SIZE_AUTO
+                isHideCollidedSymbols = true
+                isHideCollidedMarkers = true
+            }
+        } while (cursor.moveToNext())
     }
 
     fun getCount(): Int {

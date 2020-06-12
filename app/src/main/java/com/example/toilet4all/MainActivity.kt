@@ -70,6 +70,9 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
                 activity.parseJson(activity.markers, toilets)
                 activity.dbHelper.insertAllToilet(toilets)
             }
+            else {
+                activity.dbHelper.getOptionMarkers(activity.markers, options)
+            }
 
             activity.handler.post {
                 activity.lastOptions = options
@@ -171,14 +174,14 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
         }
     }
 
-//    private fun stopLocationUpdates() {
-//        fusedLocationClient.removeLocationUpdates(locationCallback)
-//    }
-//
-//    override fun onPause() {
-//        super.onPause()
-//        stopLocationUpdates()
-//    }
+    private fun stopLocationUpdates() {
+        fusedLocationClient.removeLocationUpdates(locationCallback)
+    }
+
+    override fun onPause() {
+        super.onPause()
+        stopLocationUpdates()
+    }
 
     private fun initMap() {
         val fm = supportFragmentManager
@@ -311,7 +314,7 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
             cnt = dbHelper.getCount()
         }
         if (cnt > 0) {
-            dbHelper.getAllToilet(markers)
+            dbHelper.getOptionMarkers(markers, 0)
 
             handler.post {
                 markers.forEach { marker ->
@@ -355,8 +358,6 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
                 for (marker in markers) {
                     marker.map = null
                 }
-                dbHelper.getOptionMarkers(markers, options)
-
                 startTask(options)
             }
             override fun onDrawerOpened(drawerView: View) {}
