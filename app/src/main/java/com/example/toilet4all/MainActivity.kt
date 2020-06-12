@@ -38,10 +38,10 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
     lateinit var dbHelper: ToiletDBHelper
     var backKeyPressedTime: Long = 0
     val handler = Handler(Looper.getMainLooper())
-    lateinit var naverMap: NaverMap
+    var naverMap: NaverMap ?= null
     lateinit var infoWindow: InfoWindow
     lateinit var loc: LatLng
-    lateinit var fusedLocationClient: FusedLocationProviderClient
+    var fusedLocationClient: FusedLocationProviderClient ?= null
     lateinit var locationCallback: LocationCallback
     lateinit var locationRequest: LocationRequest
     lateinit var locationSource: FusedLocationSource
@@ -65,13 +65,15 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
         override fun doInBackground(vararg params: Unit?) {
             val activity = activityReference.get()!!
 
-            if (isFirst) {
-                val toilets = ArrayList<Toilet>()
-                activity.parseJson(activity.markers, toilets)
-                activity.dbHelper.insertAllToilet(toilets)
-            }
-            else {
-                activity.dbHelper.getOptionMarkers(activity.markers, options)
+            synchronized(this) {
+                if (isFirst) {
+                    val toilets = ArrayList<Toilet>()
+                    activity.parseJson(activity.markers, toilets)
+                    activity.dbHelper.insertAllToilet(toilets)
+                }
+                else {
+                    activity.dbHelper.getOptionMarkers(activity.markers, options)
+                }
             }
 
             activity.handler.post {
@@ -116,10 +118,15 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+
         synchronized(this) {
             locationSource = FusedLocationSource(this, LOCATION_PERMISSION_REQUEST_CODE)
         }
-        initMap()
+
+        synchronized(this) {
+            initMap()
+        }
+
     }
 
     private fun initLocation() {
@@ -128,7 +135,7 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
             ActivityCompat.checkSelfPermission(this,
                 Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
             fusedLocationClient = LocationServices.getFusedLocationProviderClient(this)
-            fusedLocationClient.lastLocation?.addOnSuccessListener {
+            fusedLocationClient?.lastLocation?.addOnSuccessListener {
                 loc = LatLng(it.latitude, it.longitude)
             }
             startLocationUpdates()
@@ -152,7 +159,7 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
                 p0 ?: return
                 for (location in p0.locations) {
                     loc = LatLng(location.latitude, location.longitude)
-                    naverMap.locationOverlay.position = loc
+                    naverMap?.locationOverlay?.position = loc
                 }
             }
         }
@@ -162,10 +169,10 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
             ActivityCompat.checkSelfPermission(this,
                 Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
             fusedLocationClient = LocationServices.getFusedLocationProviderClient(this)
-            fusedLocationClient.lastLocation?.addOnSuccessListener {
+            fusedLocationClient?.lastLocation?.addOnSuccessListener {
                 loc = LatLng(it.latitude, it.longitude)
             }
-            fusedLocationClient.requestLocationUpdates(
+            fusedLocationClient?.requestLocationUpdates(
                 locationRequest,
                 locationCallback,
                 Looper.getMainLooper()
@@ -175,11 +182,21 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
     }
 
     private fun stopLocationUpdates() {
-        fusedLocationClient.removeLocationUpdates(locationCallback)
+        fusedLocationClient?.removeLocationUpdates(locationCallback)
     }
 
     override fun onPause() {
         super.onPause()
+        stopLocationUpdates()
+    }
+
+    override fun onResume() {
+        super.onResume()
+        startLocationUpdates()
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
         stopLocationUpdates()
     }
 
@@ -358,6 +375,7 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
                 for (marker in markers) {
                     marker.map = null
                 }
+                markers.clear()
                 startTask(options)
             }
             override fun onDrawerOpened(drawerView: View) {}
@@ -384,25 +402,26 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
             Toast.makeText(this, "한 번 더 누르면 앱을 종료합니다.", Toast.LENGTH_SHORT).show()
             return
         }
-        else
+        else {
             finish()
+        }
     }
 
     override fun onMapReady(p0: NaverMap) {
         naverMap = p0
-        naverMap.locationSource = locationSource
-        naverMap.mapType = NaverMap.MapType.Basic
-        naverMap.maxZoom = 16.0
-        naverMap.minZoom = 12.0
-        naverMap.uiSettings.isLocationButtonEnabled = true
-        naverMap.uiSettings.isCompassEnabled = true
-        naverMap.uiSettings.isScaleBarEnabled = true
-        naverMap.uiSettings.isCompassEnabled = true
-        naverMap.uiSettings.isScrollGesturesEnabled = true
-        naverMap.uiSettings.isRotateGesturesEnabled = true
-        naverMap.locationOverlay.isVisible = true
-        naverMap.locationOverlay.circleRadius = 400
-        naverMap.locationTrackingMode = LocationTrackingMode.Follow
+        naverMap?.locationSource = locationSource
+        naverMap?.mapType = NaverMap.MapType.Basic
+        naverMap?.maxZoom = 18.0
+        naverMap?.minZoom = 12.0
+        naverMap?.uiSettings?.isLocationButtonEnabled = true
+        naverMap?.uiSettings?.isCompassEnabled = true
+        naverMap?.uiSettings?.isScaleBarEnabled = true
+        naverMap?.uiSettings?.isCompassEnabled = true
+        naverMap?.uiSettings?.isScrollGesturesEnabled = true
+        naverMap?.uiSettings?.isRotateGesturesEnabled = true
+        naverMap?.locationOverlay?.isVisible = true
+        naverMap?.locationOverlay?.circleRadius = 400
+        naverMap?.locationTrackingMode = LocationTrackingMode.Follow
 
         infoWindow = InfoWindow()
         infoWindow.alpha = 0.9f
@@ -426,13 +445,13 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
                 if (toilet.unisexToiletYn == "Y")
                     view.toiletView.setImageResource(R.drawable.ic_shared_toilets)
 
-                naverMap.moveCamera(CameraUpdate.scrollTo(p0.marker!!.position).animate(CameraAnimation.Easing))
+                naverMap?.moveCamera(CameraUpdate.scrollTo(p0.marker!!.position).animate(CameraAnimation.Easing))
                 return view
             }
 
         }
 
-        naverMap.setOnMapClickListener { _, _ ->
+        naverMap?.setOnMapClickListener { _, _ ->
             infoWindow.close()
         }
 
@@ -449,7 +468,7 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
         if (locationSource.onRequestPermissionsResult(requestCode, permissions,
             grantResults)) {
             if (!locationSource.isActivated) {
-                naverMap.locationTrackingMode = LocationTrackingMode.Follow
+                naverMap?.locationTrackingMode = LocationTrackingMode.Follow
             }
             return
         }

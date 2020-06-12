@@ -6,7 +6,6 @@ import android.database.Cursor
 import android.database.sqlite.SQLiteDatabase
 import android.database.sqlite.SQLiteOpenHelper
 import android.graphics.Color
-import android.util.Log
 import com.naver.maps.geometry.LatLng
 import com.naver.maps.map.overlay.Marker
 import com.naver.maps.map.util.MarkerIcons
@@ -175,7 +174,6 @@ class ToiletDBHelper(context: Context) : SQLiteOpenHelper(context, DB_NAME, null
     }
 
     fun getOptionMarkers(markers: ArrayList<Marker>, options: Int) {
-        markers.clear()
         val db = this.readableDatabase
         var query = "select * from $TABLE_NAME"
 
@@ -205,13 +203,10 @@ class ToiletDBHelper(context: Context) : SQLiteOpenHelper(context, DB_NAME, null
                     "$LADIES_CHILDREN_TOILET_BOWL_NUMBER > 0)"
         }
 
-        Log.d("options", options.toString())
-        Log.d("query", query)
         val cursor = db.rawQuery(query, null)
         if (cursor.count > 0)
             setMarker(cursor, markers)
 
-        Log.d("size", markers.size.toString())
         cursor.close()
         db.close()
     }

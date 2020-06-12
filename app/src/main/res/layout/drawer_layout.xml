@@ -116,7 +116,7 @@
                 android:id="@+id/allToiletRadioBtn"
                 android:layout_width="wrap_content"
                 android:text="모두"
-                android:checked="false"
+                android:checked="true"
                 android:layout_height="wrap_content"/>
         </RadioGroup>
 
