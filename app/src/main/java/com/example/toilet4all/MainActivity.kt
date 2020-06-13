@@ -139,14 +139,11 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        synchronized(this) {
-            locationSource = FusedLocationSource(this, LOCATION_PERMISSION_REQUEST_CODE)
-        }
+        val intent = Intent(this, LoadingActivity::class.java)
+        startActivity(intent)
 
-        synchronized(this) {
-            initMap()
-        }
-
+        locationSource = FusedLocationSource(this, LOCATION_PERMISSION_REQUEST_CODE)
+        initMap()
     }
 
     private fun initLocation() {
