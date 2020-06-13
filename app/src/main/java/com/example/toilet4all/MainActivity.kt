@@ -72,7 +72,7 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
                     activity.dbHelper.insertAllToilet(toilets)
                 }
                 else {
-                    activity.dbHelper.getOptionMarkers(activity.markers, options)
+                    activity.dbHelper.getOptionMarkers(options)
                 }
             }
 
@@ -320,7 +320,7 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
             cnt = dbHelper.getCount()
         }
         if (cnt > 0) {
-            dbHelper.getOptionMarkers(markers, 0)
+            dbHelper.getOptionMarkers(0)
 
             handler.post {
                 markers.forEach { marker ->
@@ -365,6 +365,8 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
                     marker.map = null
                 }
                 markers.clear()
+                System.gc()
+
                 startTask(options)
             }
             override fun onDrawerOpened(drawerView: View) {}

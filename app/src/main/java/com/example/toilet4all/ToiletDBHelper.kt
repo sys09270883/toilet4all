@@ -6,11 +6,12 @@ import android.database.Cursor
 import android.database.sqlite.SQLiteDatabase
 import android.database.sqlite.SQLiteOpenHelper
 import android.graphics.Color
+import android.util.Log
 import com.naver.maps.geometry.LatLng
 import com.naver.maps.map.overlay.Marker
 import com.naver.maps.map.util.MarkerIcons
 
-class ToiletDBHelper(context: Context) : SQLiteOpenHelper(context, DB_NAME, null, DB_VERSION) {
+class ToiletDBHelper(val context: Context) : SQLiteOpenHelper(context, DB_NAME, null, DB_VERSION) {
 
     companion object {
         val DB_VERSION = 1
@@ -146,14 +147,16 @@ class ToiletDBHelper(context: Context) : SQLiteOpenHelper(context, DB_NAME, null
         db.endTransaction()
     }
 
-    private fun setMarker(cursor: Cursor, markers: ArrayList<Marker>) {
+    private fun setMarker(cursor: Cursor) {
+        val activity = context as MainActivity
         cursor.moveToFirst()
         do {
+            Log.d("size", activity.markers.size.toString())
             val lat = cursor.getString(19).toDouble()
             val lng = cursor.getString(20).toDouble()
             val toiletName = cursor.getString(2)
 
-            markers += Marker().apply {
+            activity.markers.plusAssign(Marker().apply {
                 position = LatLng(lat, lng)
                 icon = MarkerIcons.BLACK
                 iconTintColor = Color.GREEN
@@ -163,7 +166,7 @@ class ToiletDBHelper(context: Context) : SQLiteOpenHelper(context, DB_NAME, null
                 height = Marker.SIZE_AUTO
                 isHideCollidedSymbols = true
                 isHideCollidedMarkers = true
-            }
+            })
         } while (cursor.moveToNext())
     }
 
@@ -173,7 +176,7 @@ class ToiletDBHelper(context: Context) : SQLiteOpenHelper(context, DB_NAME, null
         return cursor.count
     }
 
-    fun getOptionMarkers(markers: ArrayList<Marker>, options: Int) {
+    fun getOptionMarkers(options: Int) {
         val db = this.readableDatabase
         var query = "select * from $TABLE_NAME"
 
@@ -205,7 +208,7 @@ class ToiletDBHelper(context: Context) : SQLiteOpenHelper(context, DB_NAME, null
 
         val cursor = db.rawQuery(query, null)
         if (cursor.count > 0)
-            setMarker(cursor, markers)
+            setMarker(cursor)
 
         cursor.close()
         db.close()
