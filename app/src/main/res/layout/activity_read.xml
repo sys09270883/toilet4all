@@ -7,7 +7,7 @@
     tools:context=".ReadActivity">
 
     <TextView
-        android:id="@+id/readBoardTitleTextView"
+        android:id="@+id/readBoardView"
         android:layout_width="0dp"
         android:layout_height="80dp"
         android:background="@color/appDarkColor"
@@ -29,15 +29,18 @@
         android:layout_marginTop="12dp"
         android:background="@android:color/transparent"
         android:src="@drawable/ic_baseline_arrow_back"
-        app:layout_constraintStart_toStartOf="@+id/readBoardTitleTextView"
-        app:layout_constraintTop_toTopOf="@+id/readBoardTitleTextView" />
+        app:layout_constraintStart_toStartOf="@+id/readBoardView"
+        app:layout_constraintTop_toTopOf="@+id/readBoardView" />
 
     <ScrollView
-        android:layout_width="354dp"
-        android:layout_height="311dp"
-        android:layout_marginTop="12dp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="30dp"
+        android:layout_marginLeft="20dp"
+        android:layout_marginStart="20dp"
+        android:layout_marginEnd="20dp"
+        android:layout_marginRight="20dp"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.491"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/nameTextView">
 
@@ -46,28 +49,31 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:textSize="16dp"
+            android:textSize="18dp"
             />
     </ScrollView>
 
     <TextView
         android:id="@+id/readTitleView"
-        android:layout_width="354dp"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="20dp"
-        android:textStyle="bold"
+        android:layout_marginLeft="20dp"
+        android:layout_marginStart="20dp"
+        android:layout_marginRight="20dp"
+        android:layout_marginEnd="20dp"
+        android:layout_marginTop="24dp"
+        android:paddingRight="20dp"
         android:textSize="28dp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.491"
+        android:textStyle="bold"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/readBoardTitleTextView" />
+        app:layout_constraintTop_toBottomOf="@+id/readBoardView" />
 
     <TextView
         android:id="@+id/nameTextView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="48dp"
-        android:layout_marginLeft="48dp"
+        android:layout_marginLeft="20dp"
+        android:layout_marginStart="20dp"
         android:layout_marginTop="16dp"
         android:textSize="10dp"
         app:layout_constraintStart_toStartOf="parent"
@@ -77,11 +83,11 @@
         android:id="@+id/dateTextView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginEnd="20dp"
+        android:layout_marginRight="20dp"
         android:layout_marginTop="16dp"
         android:textSize="10dp"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.502"
-        app:layout_constraintStart_toEndOf="@+id/nameTextView"
         app:layout_constraintTop_toBottomOf="@+id/readTitleView" />
 
 
