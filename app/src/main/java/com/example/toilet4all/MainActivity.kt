@@ -37,16 +37,16 @@ import kotlin.properties.Delegates
 class MainActivity : AppCompatActivity(), OnMapReadyCallback {
 
     lateinit var dbHelper: ToiletDBHelper
-    var backKeyPressedTime: Long = 0
+    private var backKeyPressedTime: Long = 0
     val handler = Handler(Looper.getMainLooper())
     var naverMap: NaverMap ?= null
     lateinit var infoWindow: InfoWindow
     lateinit var loc: LatLng
-    var fusedLocationClient: FusedLocationProviderClient ?= null
-    lateinit var locationCallback: LocationCallback
-    lateinit var locationRequest: LocationRequest
-    lateinit var locationSource: FusedLocationSource
-    lateinit var progressDialog: AlertDialog
+    private var fusedLocationClient: FusedLocationProviderClient ?= null
+    private lateinit var locationCallback: LocationCallback
+    private lateinit var locationRequest: LocationRequest
+    private lateinit var locationSource: FusedLocationSource
+    private lateinit var progressDialog: AlertDialog
     var markers = ArrayList<Marker>()
     var lastOptions = 0
 
@@ -59,7 +59,9 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
         task.execute()
     }
 
-    class ToiletAsyncTask(context: MainActivity, val options: Int, val isFirst: Boolean = false)
+    class ToiletAsyncTask(context: MainActivity,
+                          private val options: Int,
+                          private val isFirst: Boolean = false)
         : AsyncTask<Unit, String, Unit>() {
         private val activityReference = WeakReference(context)
 
@@ -69,7 +71,7 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
 
             if (isFirst) {
                 val toilets = ArrayList<Toilet>()
-                activity.parseJson(activity.markers, toilets)
+                activity.parseJson(toilets)
                 activity.dbHelper.insertAllToilet(toilets)
             }
             else
@@ -215,7 +217,7 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
         mapFragment.getMapAsync(this)
     }
 
-    private fun parseJson(markers: ArrayList<Marker>, toilets: ArrayList<Toilet>) {
+    private fun parseJson(toilets: ArrayList<Toilet>) {
         val assetManager = resources.assets
         val inputStream = assetManager.open("nationalpublictoiletstandarddata.json")
         val jsonStr = inputStream.bufferedReader().use { it.readText() }
@@ -283,7 +285,7 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
             val referenceData = obj.getString("데이터기준일자")
 
             if (latitude > 0.0 && hardness > 0.0) {
-                markers += Marker().apply {
+                markers.plusAssign(Marker().apply {
                     position = LatLng(latitude, hardness)
                     icon = MarkerIcons.BLACK
                     iconTintColor = Color.GREEN
@@ -293,7 +295,7 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
                     isHideCollidedSymbols = true
                     isHideCollidedMarkers = true
                     captionText = toiletNm
-                }
+                })
 
                 toilets += Toilet(
                     tid++,
@@ -438,7 +440,7 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
                 val toilet = dbHelper.findToilet(p0.marker!!.captionText)!!
                 view.infoTitleView.text = toilet.tolietNm
                 view.infoSubTitleView.text = toilet.toiletType
-                view.dateView.text = StringBuilder("\"업데이트 | \" + toilet.referenceData").toString()
+                view.dateView.text = StringBuilder("업데이트 | " + toilet.referenceData).toString()
 
                 if (toilet.menHandicapToiletBowlNumber + toilet.menHandicapUrinalNumber <= 0)
                     view.manHandicappedView.setColorFilter(Color.parseColor("#d3d3d3"), PorterDuff.Mode.SRC_IN)
