@@ -290,8 +290,8 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
                     icon = MarkerIcons.BLACK
                     iconTintColor = Color.GREEN
                     alpha = 0.8f
-                    width = Marker.SIZE_AUTO
-                    height = Marker.SIZE_AUTO
+                    width = 70
+                    height = 110
                     isHideCollidedSymbols = true
                     isHideCollidedMarkers = true
                     captionText = toiletNm
