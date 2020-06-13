@@ -180,8 +180,8 @@ class ToiletDBHelper(val context: Context) : SQLiteOpenHelper(context, DB_NAME, 
                     iconTintColor = Color.GREEN
                     captionText = toiletName
                     alpha = 0.8f
-                    width = Marker.SIZE_AUTO
-                    height = Marker.SIZE_AUTO
+                    width = 70
+                    height = 110
                     isHideCollidedSymbols = true
                     isHideCollidedMarkers = true
                 }
