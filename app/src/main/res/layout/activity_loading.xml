@@ -43,6 +43,6 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/textView"
         app:layout_constraintVertical_bias="0.897"
-        app:srcCompat="@drawable/ic_toilets"
+        app:srcCompat="@drawable/ic_toilet_main"
         tools:ignore="VectorDrawableCompat" />
 </androidx.constraintlayout.widget.ConstraintLayout>
