@@ -31,7 +31,11 @@ class WriteActivity : AppCompatActivity() {
         }
 
         saveButton.setOnClickListener {
-            if (nameEditTextView.text?.isEmpty()!!) {
+            if (titleEditTextView.text?.length!! > 20) {
+                Toast.makeText(this, "제목은 20자 이내입니다.", Toast.LENGTH_SHORT).show()
+                return@setOnClickListener
+            }
+            else if (nameEditTextView.text?.isEmpty()!!) {
                 Toast.makeText(this, "아이디를 입력하세요.", Toast.LENGTH_SHORT).show()
                 return@setOnClickListener
             }
