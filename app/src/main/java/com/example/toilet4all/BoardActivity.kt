@@ -87,7 +87,7 @@ class BoardActivity : AppCompatActivity() {
                 val targetPid = adapter.getItem(position).pid
                 val targetPassword = adapter.getItem(position).password
                 val builder = AlertDialog.Builder(this@BoardActivity)
-                var passwordEditText = EditText(this@BoardActivity)
+                val passwordEditText = EditText(this@BoardActivity)
                 passwordEditText.transformationMethod = PasswordTransformationMethod.getInstance()
 
                 builder.setTitle("게시글 삭제")
