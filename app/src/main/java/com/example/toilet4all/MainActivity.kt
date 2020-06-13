@@ -394,6 +394,30 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
             startActivity(intent)
         }
 
+        findBtn.setOnClickListener {
+            var minDist: Double = Double.MAX_VALUE
+            val curPosition = LatLng(locationSource.lastLocation!!.latitude,
+                locationSource.lastLocation!!.longitude)
+            var nearestPosition: LatLng = markers[0].position
+            for (i in 1 until markers.size) {
+                if (markers[i].map == null)
+                    continue
+                val dist = getDistance(curPosition, markers[i].position)
+                if (minDist > dist) {
+                    minDist = dist
+                    nearestPosition = markers[i].position
+                }
+            }
+            naverMap?.moveCamera(CameraUpdate.scrollTo(nearestPosition)
+                .animate(CameraAnimation.Easing, 1000))
+        }
+
+    }
+
+    private fun getDistance(p1: LatLng, p2: LatLng): Double {
+        val ret = (p1.latitude - p2.latitude) * (p1.latitude - p2.latitude) +
+                (p1.longitude - p2.longitude) * (p1.longitude - p2.longitude)
+        return ret
     }
 
     @SuppressLint("RtlHardcoded")
@@ -453,7 +477,8 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
                 if (toilet.unisexToiletYn == "Y")
                     view.toiletView.setImageResource(R.drawable.ic_shared_toilets)
 
-                naverMap?.moveCamera(CameraUpdate.scrollTo(p0.marker!!.position).animate(CameraAnimation.Easing))
+                naverMap?.moveCamera(CameraUpdate.scrollTo(p0.marker!!.position)
+                    .animate(CameraAnimation.Easing, 1000))
                 return view
             }
 
