@@ -1,12 +1,12 @@
 package com.example.toilet4all
 
+import android.annotation.SuppressLint
 import android.content.ContentValues
 import android.content.Context
 import android.database.Cursor
 import android.database.sqlite.SQLiteDatabase
 import android.database.sqlite.SQLiteOpenHelper
 import android.graphics.Color
-import android.util.Log
 import com.naver.maps.geometry.LatLng
 import com.naver.maps.map.overlay.Marker
 import com.naver.maps.map.util.MarkerIcons
@@ -14,31 +14,31 @@ import com.naver.maps.map.util.MarkerIcons
 class ToiletDBHelper(val context: Context) : SQLiteOpenHelper(context, DB_NAME, null, DB_VERSION) {
 
     companion object {
-        val DB_VERSION = 1
-        val DB_NAME = "toiletdb.db"
-        val TABLE_NAME = "toilets"
-        val TOILET_ID = "tid"
-        val TOILET_TYPE = "toiletType"
-        val TOILET_NAME = "toiletNm"
-        val RDNMADR = "rdnmadr"
-        val LNMDAR = "lnmdar"
-        val UNISEX_TOILET_YN = "unisexToiletYn"
-        val MEN_TOILET_BOWL_NUMBER = "menToiletBowlNumber"
-        val MEN_URINE_NUMBER = "menUrineNumber"
-        val MEN_HANDICAP_TOILET_BOWL_NUMBER = "menHandicapToiletBowlNumber"
-        val MEN_HANDICAP_URINAL_NUMBER = "menHandicapUrinalNumber"
-        val MEN_CHILDREN_TOILET_BOTTLE_NUMBER = "menChildrenToiletBottleNumber"
-        val MEN_CHILDREN_URINAL_NUMBER = "menChildrenUrinalNumber"
-        val LADIES_TOILET_BOWL_NUMBER = "ladiesToiletBowlNumber"
-        val LADIES_HANDICAP_TOILET_BOWL_NUMBER = "ladiesHandicapToiletBowlNumber"
-        val LADIES_CHILDREN_TOILET_BOWL_NUMBER = "ladiesChildrenToiletBowlNumber"
-        val INSTITUTION_NAME = "institutionNm"
-        val PHONE_NUMBER = "phoneNumber"
-        val OPEN_TIME = "openTime"
-        val INSTALLATION_YEAR = "installationYear"
-        val LATITUDE = "latitude"
-        val HARDNESS = "hardness"
-        val REFERENCE_DATA = "referenceData"
+        const val DB_VERSION = 1
+        const val DB_NAME = "toiletdb.db"
+        const val TABLE_NAME = "toilets"
+        const val TOILET_ID = "tid"
+        const val TOILET_TYPE = "toiletType"
+        const val TOILET_NAME = "toiletNm"
+        const val RDNMADR = "rdnmadr"
+        const val LNMDAR = "lnmdar"
+        const val UNISEX_TOILET_YN = "unisexToiletYn"
+        const val MEN_TOILET_BOWL_NUMBER = "menToiletBowlNumber"
+        const val MEN_URINE_NUMBER = "menUrineNumber"
+        const val MEN_HANDICAP_TOILET_BOWL_NUMBER = "menHandicapToiletBowlNumber"
+        const val MEN_HANDICAP_URINAL_NUMBER = "menHandicapUrinalNumber"
+        const val MEN_CHILDREN_TOILET_BOTTLE_NUMBER = "menChildrenToiletBottleNumber"
+        const val MEN_CHILDREN_URINAL_NUMBER = "menChildrenUrinalNumber"
+        const val LADIES_TOILET_BOWL_NUMBER = "ladiesToiletBowlNumber"
+        const val LADIES_HANDICAP_TOILET_BOWL_NUMBER = "ladiesHandicapToiletBowlNumber"
+        const val LADIES_CHILDREN_TOILET_BOWL_NUMBER = "ladiesChildrenToiletBowlNumber"
+        const val INSTITUTION_NAME = "institutionNm"
+        const val PHONE_NUMBER = "phoneNumber"
+        const val OPEN_TIME = "openTime"
+        const val INSTALLATION_YEAR = "installationYear"
+        const val LATITUDE = "latitude"
+        const val HARDNESS = "hardness"
+        const val REFERENCE_DATA = "referenceData"
     }
 
     override fun onCreate(db: SQLiteDatabase?) {
@@ -113,7 +113,6 @@ class ToiletDBHelper(val context: Context) : SQLiteOpenHelper(context, DB_NAME, 
     }
 
     fun insertAllToilet(toilets: MutableList<Toilet>) {
-        /* total 29468 toilets */
         val db = this.writableDatabase
         db.beginTransaction()
         toilets.forEach { toilet ->
@@ -147,36 +146,59 @@ class ToiletDBHelper(val context: Context) : SQLiteOpenHelper(context, DB_NAME, 
         db.endTransaction()
     }
 
-    private fun setMarker(cursor: Cursor) {
+    private fun setMarker(cursor: Cursor, isFirst: Boolean = false): ArrayList<Int> {
+        val tidList = ArrayList<Int>()
         val activity = context as MainActivity
         cursor.moveToFirst()
         do {
-            Log.d("size", activity.markers.size.toString())
+            val tid = cursor.getString(0).toInt()
             val lat = cursor.getString(19).toDouble()
             val lng = cursor.getString(20).toDouble()
             val toiletName = cursor.getString(2)
 
-            activity.markers.plusAssign(Marker().apply {
-                position = LatLng(lat, lng)
-                icon = MarkerIcons.BLACK
-                iconTintColor = Color.GREEN
-                captionText = toiletName
-                alpha = 0.8f
-                width = Marker.SIZE_AUTO
-                height = Marker.SIZE_AUTO
-                isHideCollidedSymbols = true
-                isHideCollidedMarkers = true
-            })
+            if (isFirst) {
+                activity.markers.plusAssign(Marker().apply {
+                    position = LatLng(lat, lng)
+                    icon = MarkerIcons.BLACK
+                    iconTintColor = Color.GREEN
+                    captionText = toiletName
+                    alpha = 0.8f
+                    width = Marker.SIZE_AUTO
+                    height = Marker.SIZE_AUTO
+                    isHideCollidedSymbols = true
+                    isHideCollidedMarkers = true
+                })
+            }
+            else {
+                if (tid >= activity.markers.size)
+                    continue
+
+                tidList += tid
+                activity.markers[tid].apply {
+                    position = LatLng(lat, lng)
+                    icon = MarkerIcons.BLACK
+                    iconTintColor = Color.GREEN
+                    captionText = toiletName
+                    alpha = 0.8f
+                    width = Marker.SIZE_AUTO
+                    height = Marker.SIZE_AUTO
+                    isHideCollidedSymbols = true
+                    isHideCollidedMarkers = true
+                }
+            }
         } while (cursor.moveToNext())
+        return tidList
     }
 
+    @SuppressLint("Recycle")
     fun getCount(): Int {
         val db = this.readableDatabase
         val cursor = db.rawQuery("select * from $TABLE_NAME", null)
         return cursor.count
     }
 
-    fun getOptionMarkers(options: Int) {
+    fun getOptionMarkers(options: Int, isFirst: Boolean = false): ArrayList<Int> {
+        var tidList = ArrayList<Int>()
         val db = this.readableDatabase
         var query = "select * from $TABLE_NAME"
 
@@ -208,10 +230,11 @@ class ToiletDBHelper(val context: Context) : SQLiteOpenHelper(context, DB_NAME, 
 
         val cursor = db.rawQuery(query, null)
         if (cursor.count > 0)
-            setMarker(cursor)
+            tidList = setMarker(cursor, isFirst)
 
         cursor.close()
         db.close()
+        return tidList
     }
 
 }

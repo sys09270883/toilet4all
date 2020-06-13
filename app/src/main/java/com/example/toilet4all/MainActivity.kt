@@ -1,6 +1,7 @@
 package com.example.toilet4all
 
 import android.Manifest
+import android.annotation.SuppressLint
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.Color
@@ -64,32 +65,51 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
 
         override fun doInBackground(vararg params: Unit?) {
             val activity = activityReference.get()!!
+            var tidList = ArrayList<Int>()
 
-            synchronized(this) {
-                if (isFirst) {
-                    val toilets = ArrayList<Toilet>()
-                    activity.parseJson(activity.markers, toilets)
-                    activity.dbHelper.insertAllToilet(toilets)
-                }
-                else {
-                    activity.dbHelper.getOptionMarkers(options)
-                }
+            if (isFirst) {
+                val toilets = ArrayList<Toilet>()
+                activity.parseJson(activity.markers, toilets)
+                activity.dbHelper.insertAllToilet(toilets)
             }
+            else
+                tidList = activity.dbHelper.getOptionMarkers(options)
 
             activity.handler.post {
                 activity.lastOptions = options
-                activity.markers.forEach { marker ->
-                    marker.map = activity.naverMap
 
-                    marker.onClickListener = Overlay.OnClickListener { p0 ->
-                        val selectedMarker = p0 as Marker
+                when (isFirst) {
+                    true -> {
+                        activity.markers.forEach { marker ->
+                            marker.map = activity.naverMap
+                            marker.onClickListener = Overlay.OnClickListener { p0 ->
+                                val selectedMarker = p0 as Marker
 
-                        if (selectedMarker.infoWindow == null)
-                            activity.infoWindow.open(selectedMarker)
-                        else
-                            activity.infoWindow.close()
+                                if (selectedMarker.infoWindow == null)
+                                    activity.infoWindow.open(selectedMarker)
+                                else
+                                    activity.infoWindow.close()
 
-                        true
+                                true
+                            }
+                        }
+                    }
+                    false -> {
+                        for (i in tidList) {
+                            activity.markers[i].apply {
+                                map = activity.naverMap
+                                onClickListener = Overlay.OnClickListener { p0 ->
+                                    val selectedMarker = p0 as Marker
+
+                                    if (selectedMarker.infoWindow == null)
+                                        activity.infoWindow.open(selectedMarker)
+                                    else
+                                        activity.infoWindow.close()
+
+                                    true
+                                }
+                            }
+                        }
                     }
                 }
             }
@@ -131,7 +151,7 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
 
     private fun initLocation() {
         if (ActivityCompat.checkSelfPermission(this,
-            Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED &&
+                Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED &&
             ActivityCompat.checkSelfPermission(this,
                 Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
             fusedLocationClient = LocationServices.getFusedLocationProviderClient(this)
@@ -142,8 +162,8 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
         }
         else {
             ActivityCompat.requestPermissions(this,
-            arrayOf(Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION),
-            LOCATION_PERMISSION_REQUEST_CODE)
+                arrayOf(Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION),
+                LOCATION_PERMISSION_REQUEST_CODE)
         }
     }
 
@@ -204,50 +224,45 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
         val jsonStr = inputStream.bufferedReader().use { it.readText() }
         val jsonObject = JSONObject(jsonStr)
         val jsonArr = jsonObject.getJSONArray("records")
+        var tid = 0
 
         for (i in 0 until jsonArr.length()) {
             val obj = jsonArr.getJSONObject(i)
-            val tid = i + 1
             val toiletType = obj.getString("구분")
             val toiletNm = obj.getString("화장실명")
             var rdnmadr by Delegates.notNull<String>()
-            try {
-                rdnmadr = obj.getString("소재지도로명주소")
-            }
-            catch (e: JSONException) {
-                rdnmadr = ""
+            rdnmadr = try {
+                obj.getString("소재지도로명주소")
+            } catch (e: JSONException) {
+                ""
             }
             var lnmdar by Delegates.notNull<String>()
-            try {
-                lnmdar = obj.getString("소재지지번주소")
-            }
-            catch (e: JSONException) {
-                lnmdar = ""
+            lnmdar = try {
+                obj.getString("소재지지번주소")
+            } catch (e: JSONException) {
+                ""
             }
             val unisexToiletYn = obj.getString("남녀공용화장실여부")
             var menToiletBowlNumber by Delegates.notNull<Int>()
-            try {
-                menToiletBowlNumber = obj.getString("남성용-대변기수").toInt()
-            }
-            catch (e: JSONException) {
-                menToiletBowlNumber = 0
+            menToiletBowlNumber = try {
+                obj.getString("남성용-대변기수").toInt()
+            } catch (e: JSONException) {
+                0
             }
             val menUrineNumber = obj.getString("남성용-소변기수").toInt()
             val menHandicapToiletBowlNumber = obj.getString("남성용-장애인용대변기수").toInt()
             val menHandicapUrinalNumber = obj.getString("남성용-장애인용소변기수").toInt()
             var menChildrenToiletBottleNumber by Delegates.notNull<Int>()
-            try {
-                menChildrenToiletBottleNumber = obj.getString("남성용-어린이용대변기수").toInt()
-            }
-            catch (e: NumberFormatException) {
-                menChildrenToiletBottleNumber = 0
+            menChildrenToiletBottleNumber = try {
+                obj.getString("남성용-어린이용대변기수").toInt()
+            } catch (e: NumberFormatException) {
+                0
             }
             var menChildrenUrinalNumber by Delegates.notNull<Int>()
-            try {
-                menChildrenUrinalNumber = obj.getString("남성용-어린이용소변기수").toInt()
-            }
-            catch (e: NumberFormatException) {
-                menChildrenUrinalNumber = 0
+            menChildrenUrinalNumber = try {
+                obj.getString("남성용-어린이용소변기수").toInt()
+            } catch (e: NumberFormatException) {
+                0
             }
             val ladiesToiletBowlNumber = obj.getString("여성용-대변기수").toInt()
             val ladiesHandicapToiletBowlNumber = obj.getString("여성용-장애인용대변기수").toInt()
@@ -257,57 +272,57 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
             val openTime = obj.getString("개방시간")
             val installationYear = "" // obj.getString("설치년도")
             var latitude by Delegates.notNull<Double>()
-            try {
-                latitude = obj.getString("위도").toDouble()
-            }
-            catch (e: JSONException) {
-                latitude = 0.0
+            latitude = try {
+                obj.getString("위도").toDouble()
+            } catch (e: JSONException) {
+                0.0
             }
             var hardness by Delegates.notNull<Double>()
-            try {
-                hardness = obj.getString("경도").toDouble()
-            }
-            catch (e: JSONException) {
-                hardness = 0.0
+            hardness = try {
+                obj.getString("경도").toDouble()
+            } catch (e: JSONException) {
+                0.0
             }
             val referenceData = obj.getString("데이터기준일자")
 
-            markers += Marker().apply {
-                position = LatLng(latitude, hardness)
-                icon = MarkerIcons.BLACK
-                iconTintColor = Color.GREEN
-                alpha = 0.8f
-                width = Marker.SIZE_AUTO
-                height = Marker.SIZE_AUTO
-                isHideCollidedSymbols = true
-                isHideCollidedMarkers = true
-                captionText = toiletNm
-            }
+            if (latitude > 0.0 && hardness > 0.0) {
+                markers += Marker().apply {
+                    position = LatLng(latitude, hardness)
+                    icon = MarkerIcons.BLACK
+                    iconTintColor = Color.GREEN
+                    alpha = 0.8f
+                    width = Marker.SIZE_AUTO
+                    height = Marker.SIZE_AUTO
+                    isHideCollidedSymbols = true
+                    isHideCollidedMarkers = true
+                    captionText = toiletNm
+                }
 
-            toilets += Toilet(
-                tid,
-                toiletType,
-                toiletNm,
-                rdnmadr,
-                lnmdar,
-                unisexToiletYn,
-                menToiletBowlNumber,
-                menUrineNumber,
-                menHandicapToiletBowlNumber,
-                menHandicapUrinalNumber,
-                menChildrenToiletBottleNumber,
-                menChildrenUrinalNumber,
-                ladiesToiletBowlNumber,
-                ladiesHandicapToiletBowlNumber,
-                ladiesChildrenToiletBowlNumber,
-                institutionNm,
-                phoneNumber,
-                openTime,
-                installationYear,
-                latitude,
-                hardness,
-                referenceData
-            )
+                toilets += Toilet(
+                    tid++,
+                    toiletType,
+                    toiletNm,
+                    rdnmadr,
+                    lnmdar,
+                    unisexToiletYn,
+                    menToiletBowlNumber,
+                    menUrineNumber,
+                    menHandicapToiletBowlNumber,
+                    menHandicapUrinalNumber,
+                    menChildrenToiletBottleNumber,
+                    menChildrenUrinalNumber,
+                    ladiesToiletBowlNumber,
+                    ladiesHandicapToiletBowlNumber,
+                    ladiesChildrenToiletBowlNumber,
+                    institutionNm,
+                    phoneNumber,
+                    openTime,
+                    installationYear,
+                    latitude,
+                    hardness,
+                    referenceData
+                )
+            }
         }
     }
 
@@ -320,7 +335,7 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
             cnt = dbHelper.getCount()
         }
         if (cnt > 0) {
-            dbHelper.getOptionMarkers(0)
+            dbHelper.getOptionMarkers(0, true)
 
             handler.post {
                 markers.forEach { marker ->
@@ -343,6 +358,7 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
             startTask(0, true)
     }
 
+    @SuppressLint("RtlHardcoded")
     private fun init() {
         drawerLayout.addDrawerListener(object: DrawerLayout.DrawerListener {
             override fun onDrawerStateChanged(newState: Int) {}
@@ -364,8 +380,6 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
                 for (marker in markers) {
                     marker.map = null
                 }
-                markers.clear()
-                System.gc()
 
                 startTask(options)
             }
@@ -383,6 +397,7 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
 
     }
 
+    @SuppressLint("RtlHardcoded")
     override fun onBackPressed() {
         if (drawerLayout.isDrawerOpen(Gravity.LEFT)) {
             drawerLayout.closeDrawer(Gravity.LEFT)
@@ -419,13 +434,14 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
         infoWindow = InfoWindow()
         infoWindow.alpha = 0.9f
         infoWindow.adapter = object: InfoWindow.DefaultViewAdapter(this) {
+            @SuppressLint("InflateParams")
             override fun getContentView(p0: InfoWindow): View {
                 val view = LayoutInflater.from(this@MainActivity)
                     .inflate(R.layout.information_window_layout, null, false)
                 val toilet = dbHelper.findToilet(p0.marker!!.captionText)!!
                 view.infoTitleView.text = toilet.tolietNm
                 view.infoSubTitleView.text = toilet.toiletType
-                view.dateView.text = "업데이트 | " + toilet.referenceData
+                view.dateView.text = StringBuilder("\"업데이트 | \" + toilet.referenceData").toString()
 
                 if (toilet.menHandicapToiletBowlNumber + toilet.menHandicapUrinalNumber <= 0)
                     view.manHandicappedView.setColorFilter(Color.parseColor("#d3d3d3"), PorterDuff.Mode.SRC_IN)
@@ -459,7 +475,7 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
         grantResults: IntArray
     ) {
         if (locationSource.onRequestPermissionsResult(requestCode, permissions,
-            grantResults)) {
+                grantResults)) {
             if (!locationSource.isActivated) {
                 naverMap?.locationTrackingMode = LocationTrackingMode.Follow
             }
